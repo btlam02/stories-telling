@@ -10,5 +10,7 @@ router.get(
   userController.getAllUser
 );
 
-router.put("/deactive/:id", userController.DeactiveUser);
+
+router.put("/deactive/:id",userController.DeactiveUser);
+
 module.exports = router;

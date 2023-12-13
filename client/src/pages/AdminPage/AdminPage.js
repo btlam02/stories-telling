@@ -1,21 +1,23 @@
-import React, { useState, useContext } from "react";
-import { Layout, Menu, theme } from "antd";
+import React, { useState ,useContext} from 'react';
+import { Layout, Menu, theme } from 'antd';
 import {
   UserOutlined,
   VideoCameraOutlined,
   UploadOutlined,
   LogoutOutlined,
-} from "@ant-design/icons";
+} from '@ant-design/icons';
 import { Link } from "react-router-dom";
 import { UserContext } from "../../context/UserContext";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import ManageUsers from './ManageUsers';
+import ManageStories from './ManageStories';
 
 const { Header, Sider, Content, Button } = Layout;
 
-const UserPage = () => {
+const App = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [keySelect, setKeySelect] = useState("1");
+  const [keySelect, setKeySelect] = useState('1');
 
   const navigate = useNavigate();
   const { user, logout } = useContext(UserContext);
@@ -43,16 +45,12 @@ const UserPage = () => {
 
   const renderContent = () => {
     switch (keySelect) {
-      case "1":
-        return (
-          <div>
-            <h1>Account</h1>
-          </div>
-        );
-      case "2":
-        return <div>Voice</div>;
-      case "3":
-        return <div>Manage Voice</div>;
+      case '1':
+        return (<ManageUsers/>)
+      case '2':
+        return (<ManageStories/>)
+      case '3':
+        return <div>Account Content</div>;
       default:
         return <div>Default Content</div>;
     }
@@ -60,48 +58,46 @@ const UserPage = () => {
 
   return (
     <Layout>
-      <Sider
-        collapsedWidth="400px"
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-      >
+      <Sider collapsedWidth='400px' trigger={null} collapsible collapsed={collapsed}>
         <div className="demo-logo-vertical" />
         <Menu
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={["1"]}
+          defaultSelectedKeys={['1']}
           onSelect={handleMenuSelect}
           items={[
             {
-              key: "1",
+              key: '1',
               icon: <UserOutlined />,
-              label: "Account",
+              label: 'Manage User',
             },
             {
-              key: "2",
+              key: '2',
               icon: <VideoCameraOutlined />,
-              label: "Voice",
+              label: 'Manage Stories',
             },
             {
-              key: "3",
+              key: '3',
               icon: <UploadOutlined />,
-              label: "Manage Voice",
+              label: 'Account',
             },
             {
-              key: "4",
-              icon: <LogoutOutlined />,
-              label: "Log out",
-              onClick: handleLogout,
-            },
+                key: '4',
+                icon: <LogoutOutlined />,
+                label: 'Log out',
+                onClick: handleLogout 
+            }
           ]}
+          
         />
+                 
       </Sider>
-
+       
       <Layout>
+      
         <Content
           style={{
-            margin: "28px 30px",
+            margin: '28px 30px',
             padding: 50,
             minHeight: 1440,
             background: colorBgContainer,
@@ -109,10 +105,14 @@ const UserPage = () => {
           }}
         >
           {renderContent()}
+          
         </Content>
+
+       
       </Layout>
+      
     </Layout>
   );
 };
 
-export default UserPage;
+export default App;

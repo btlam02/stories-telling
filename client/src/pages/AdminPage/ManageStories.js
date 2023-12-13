@@ -48,7 +48,7 @@ for (let i = 0; i < 46; i++) {
   });
 }
 
-const ManageUsers = () => {
+const ManageStories = () => {
   const [users, setUsers] = useState([]);
   const { user } = useContext(UserContext);
   const token = localStorage.getItem("token");
@@ -135,7 +135,7 @@ const ManageUsers = () => {
 
   return (
     <div style={{ textAlign: "left" }}>
-      <h1>Manage Users</h1>
+      <h1>Manage Stories</h1>
       <Button
         style={{ height: "50px", width: "50px", borderRadius: "8px" }}
         onClick={() => setIsModalOpen(true)}
@@ -145,7 +145,7 @@ const ManageUsers = () => {
       <h1> </h1>
       <Table rowSelection={rowSelection} columns={columns} dataSource={users} />
       <Modal
-        title="Create New User"
+        title="Create New Stories"
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
@@ -158,4 +158,4 @@ const ManageUsers = () => {
   );
 };
 
-export default ManageUsers;
+export default ManageStories;
