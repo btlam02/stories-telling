@@ -67,10 +67,37 @@ const Navbar = () => {
         <div className="auth">
           {user && user.auth === true ? (
             <>
-              <span>Wellcome Back {user.email}</span>
-              <button className="login-btn" onClick={handleLogout}>
-                Logout
-              </button>
+              <span>Wellcome Back {user.name}</span>
+              {user.role === "admin" && (
+                <>
+                  <NavLink
+                    to="/admin/dashboard"
+                    activeClassName="active"
+                    className="login-btn"
+                  >
+                    Dashboard
+                  </NavLink>
+                </>
+              )}
+
+              {user.role === "user" && (
+                <>
+                  <NavLink
+                    to="/user/dashboard"
+                    activeClassName="active"
+                    className="login-btn"
+                  >
+                    Dashboard
+                  </NavLink>
+                  <NavLink
+                    to="/user/wishlist"
+                    activeClassName="active"
+                    className="login-btn"
+                  >
+                    Wishlist
+                  </NavLink>
+                </>
+              )}
             </>
           ) : (
             <>

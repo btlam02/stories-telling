@@ -16,7 +16,7 @@ const LoginPage = () => {
       .post("http://localhost:8000/api/signin", {email,password})
       .then((result) => {
         console.log(result);
-        loginContext(email, result.data.token, result.data.user.role); 
+        loginContext(result.data.user._id,email, result.data.token, result.data.user.role); 
         Swal.fire({
           title: "Login Successfully!",
           text: "Do you want to continue",

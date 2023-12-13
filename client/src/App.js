@@ -11,7 +11,7 @@ const App = () => {
   console.log('>> user: ', user) 
   useEffect(()=>{
     if(localStorage.getItem("token")){
-      loginContext(localStorage.getItem("email"),localStorage.getItem("token"),localStorage.getItem("role"))
+      loginContext(localStorage.getItem("id"),localStorage.getItem("email"),localStorage.getItem("token"),localStorage.getItem("role"))
     }
   },[])
   return (

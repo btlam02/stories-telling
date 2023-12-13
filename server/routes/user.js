@@ -5,10 +5,10 @@ const router = require("express").Router();
 
 router.get(
   "/listUser",
-  MiddleWareController.verifyToken,
-  MiddleWareController.verifyTokenAdminAuth,
+  //MiddleWareController.verifyToken,
+  //MiddleWareController.verifyTokenAdminAuth,
   userController.getAllUser
 );
 
-router.delete("/delete/:id", userController.deleteUser);
+router.put("/deactive/:id", userController.DeactiveUser);
 module.exports = router;

@@ -6,7 +6,7 @@ import AdminPage from "../pages/AdminPage/AdminDashboard"
 import UserPage from "../pages/UserPage/UserDashboard"
 import UserRoutes from "./UserRoutes";
 import AdminRoutes from "./AdminRoutes";
-
+import ManageUsers from "../pages/AdminPage/ManageUsers"
 
 
 const AppRoutes = () => {
@@ -17,6 +17,7 @@ const AppRoutes = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/admin/dashboard" element={<AdminRoutes><AdminPage/></AdminRoutes>}/>
+        <Route path="/admin/manage-user" element={<AdminRoutes><ManageUsers/></AdminRoutes>}/>
         <Route path="/user/dashboard" element={<UserRoutes><UserPage /></UserRoutes>} />
       </Routes>
     </>
