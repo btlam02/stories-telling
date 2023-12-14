@@ -5,6 +5,7 @@ import { UserContext } from "../../context/UserContext";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import UserRoutes from "../../routes/UserRoutes";
+import { UserOutlined, ProfileOutlined } from "@ant-design/icons";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -75,7 +76,7 @@ const Navbar = () => {
                     activeClassName="active"
                     className="login-btn"
                   >
-                    Dashboard
+                    <UserOutlined />
                   </NavLink>
                 </>
               )}
@@ -83,18 +84,19 @@ const Navbar = () => {
               {user.role === "user" && (
                 <>
                   <NavLink
-                    to="/user/dashboard"
-                    activeClassName="active"
-                    className="login-btn"
-                  >
-                    Dashboard
-                  </NavLink>
-                  <NavLink
                     to="/user/wishlist"
                     activeClassName="active"
                     className="login-btn"
                   >
-                    Wishlist
+                    <ProfileOutlined />
+                  </NavLink>
+
+                  <NavLink
+                    to="/user/dashboard"
+                    activeClassName="active"
+                    className="login-btn"
+                  >
+                    <UserOutlined />
                   </NavLink>
                 </>
               )}

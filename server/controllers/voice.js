@@ -9,14 +9,25 @@ const addNewAudio = async (title, userId, files) => {
     return newAudio;
 };
 
-const getAllAudios = async (req, res) => {
+const getAllAudios= async (req, res) => {
     try {
-        const audios = await Audio.find();
+        const userId = req.query.userId;
+
+        // Validate userId
+        if (!userId) {
+            return res.status(400).send('User ID is required');
+        }
+
+        // Fetch audios for the given user
+        const audios = await Audio.find({ userId: userId });
+
         res.json(audios);
-    } catch (err) {
-        res.status(500).send({ message: 'Error retrieving audios', error: err.message });
+    } catch (error) {
+        console.error("Error fetching audios: ", error);
+        res.status(500).send('Internal Server Error');
     }
 };
+
 
 
 module.exports = {addNewAudio, getAllAudios}

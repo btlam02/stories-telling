@@ -28,8 +28,8 @@ router.post('/audio/new-audio', upload.array('recording'), async (req, res) => {
     }
 });
 
-router.get('/audio/list', getAllAudios);
 
+router.get('/audio/list/', getAllAudios);
 
 
 module.exports = router;

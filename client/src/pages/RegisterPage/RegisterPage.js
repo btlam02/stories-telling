@@ -54,7 +54,7 @@ const RegisterPage = () => {
             {/* <a href="/forgot-password">Forgot Password</a> */}
           </div>
           <button type="submit" className="sign-in-button">
-            Sign In
+            Sign Up
           </button>
           <div className="signup-link">
             Having account? <a href="/login">Sign In</a>
