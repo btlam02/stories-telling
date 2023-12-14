@@ -6,8 +6,6 @@ const validator = require('validator')
 
 require('dotenv').config();
 
-//JWT_SECRET_ACCESS = 'change_comming_soon'
-
 exports.signup = async (req, res) => {
   try {
     const { email, password } = req.body;

@@ -7,11 +7,12 @@ const cors = require('cors')
 
 const Auth = require('./routes/auth')
 const UserRoute = require('./routes/user')
-
-
+const Voice = require('./routes/voice')
 const app = express(); 
 
 require('dotenv').config();
+
+app.use('/uploads', express.static('uploads'));
 
 mongoose.connect(process.env.DATABASE).then(()=>console.log('DB Connected'))
 
@@ -25,6 +26,7 @@ const port = process.env.PORT || 8001;
 
 app.use('/api', Auth); 
 app.use('/api', UserRoute);
+app.use('/api', Voice); 
 
 
 app.listen(port,()=>{

@@ -8,6 +8,7 @@ import {
   EditOutlined,
 } from "@ant-design/icons";
 import { Button, Table, Modal } from "antd";
+import Form from "../../components/Form/NewUserForm";
 
 const renderAction = () => {
   return (
@@ -150,9 +151,7 @@ const ManageUsers = () => {
         onOk={handleOk}
         onCancel={handleCancel}
       >
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
+        <Form/>
       </Modal>
     </div>
   );

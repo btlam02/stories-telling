@@ -12,5 +12,6 @@ router.get(
 
 
 router.put("/deactive/:id",userController.DeactiveUser);
+router.put("/update/:id")
 
 module.exports = router;

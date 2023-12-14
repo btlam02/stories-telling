@@ -10,7 +10,8 @@ import { Link } from "react-router-dom";
 import { UserContext } from "../../context/UserContext";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-
+import AudioRecorder from "./Voice";
+import AudioList from "./ManageVoice";
 const { Header, Sider, Content, Button } = Layout;
 
 const UserPage = () => {
@@ -50,9 +51,15 @@ const UserPage = () => {
           </div>
         );
       case "2":
-        return <div>Voice</div>;
+        return (
+          <>
+            <AudioRecorder />
+          </>
+        );
       case "3":
-        return <div>Manage Voice</div>;
+        return (<>
+        <AudioList/>
+        </>)
       default:
         return <div>Default Content</div>;
     }

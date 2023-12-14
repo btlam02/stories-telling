@@ -7,7 +7,7 @@ import {
   LockOutlined,
   EditOutlined,
 } from "@ant-design/icons";
-import { Button, Table, Modal } from "antd";
+import { Button, Table, Modal, Form, Input } from "antd";
 
 const renderAction = () => {
   return (
@@ -150,9 +150,7 @@ const ManageStories = () => {
         onOk={handleOk}
         onCancel={handleCancel}
       >
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
+        
       </Modal>
     </div>
   );
