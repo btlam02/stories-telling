@@ -1,9 +1,43 @@
-import React, { useState, useRef, useContext } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
 import { Button, Input, Space } from "antd";
 import { RightOutlined, LeftOutlined, AudioOutlined } from "@ant-design/icons";
 import { UserContext } from "../../context/UserContext";
 import axios from "axios";
 import Swal from "sweetalert2";
+import styled from "styled-components";
+
+const RecorderContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  background: #f0f0f0;
+  padding: 20px;
+  border-radius: 8px;
+`;
+
+const Controls = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+`;
+
+const Waveform = styled.canvas`
+  width: 100%;
+  height: 100px;
+  background-color: #ddd;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+`;
+
+const RecordButton = styled(Button)`
+  background-color: #007bff;
+  color: white;
+  margin: 0 20px;
+  padding: 0 20px;
+`;
+
 const sentences = [
   "Xuân sang cành lá đâm chồi, bao buồn vui qua rồi đưa con về với yên bình",
   "Câu thứ hai để ghi âm.",
@@ -23,36 +57,122 @@ const AudioRecorder = () => {
   const [recordingTitle, setRecordingTitle] = useState("");
   const [permission, setPermission] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [voiceId, setVoiceId] = useState(null);
   const [recordings, setRecordings] = useState(
     Array(sentences.length).fill(null)
   );
   const mediaRecorderRef = useRef(null);
   const user_id = localStorage.getItem("id");
-  const getMicrophonePermission = async () => {
-    if ("MediaRecorder" in window) {
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const animationFrameRef = useRef(null);
+  const canvasRef = useRef(null);
+  const canvasCtxRef = useRef(null);
+
+  useEffect(() => {
+    getMicrophonePermission(); // Tự động yêu cầu quyền Micro khi component được mount
+    if (canvasRef.current) {
+      canvasCtxRef.current = canvasRef.current.getContext("2d");
+    }
+  }, []);
+
+  useEffect(() => {
+    // Tự động tạo voiceId khi component được khởi tạo
+    const fetchVoiceId = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: false,
-        });
-        mediaRecorderRef.current = new MediaRecorder(stream);
-        setPermission(true);
-      } catch (err) {
-        alert(err.message);
+        const response = await axios.post(
+          "http://localhost:8000/api/voice/generate-id"
+        );
+        const fetchedVoiceId = response.data.voiceId;
+        setVoiceId(fetchedVoiceId);
+      } catch (error) {
+        console.error("Error fetching voiceId: ", error);
+        setVoiceId(null);
       }
-    } else {
-      alert("The MediaRecorder API is not supported in your browser.");
+    };
+
+    fetchVoiceId();
+  }, []);
+
+  const getMicrophonePermission = async () => {
+    if (!("MediaRecorder" in window)) {
+      alert("API MediaRecorder không được hỗ trợ trong trình duyệt của bạn.");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const audioContext = new (window.AudioContext ||
+        window.webkitAudioContext)();
+      const analyser = audioContext.createAnalyser();
+      const source = audioContext.createMediaStreamSource(stream);
+      source.connect(analyser);
+      analyserRef.current = analyser;
+      audioContextRef.current = audioContext;
+
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      setPermission(true);
+      visualize();
+    } catch (err) {
+      alert(err.message);
     }
   };
 
   const startRecording = () => {
-    mediaRecorderRef.current.start();
-    setRecording(true);
+    if (mediaRecorderRef.current && !recording) {
+      mediaRecorderRef.current.start();
+      setRecording(true);
+      visualize(); // Kích hoạt hiển thị sóng âm
+    }
+  };
+  const visualize = () => {
+    if (!analyserRef.current || !canvasCtxRef.current) return;
+
+    const canvas = canvasCtxRef.current;
+    const analyser = analyserRef.current;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    const WIDTH = canvasRef.current.width;
+    const HEIGHT = canvasRef.current.height;
+    canvas.clearRect(0, 0, WIDTH, HEIGHT);
+
+    const draw = () => {
+      animationFrameRef.current = requestAnimationFrame(draw);
+      analyser.getByteTimeDomainData(dataArray);
+
+      canvas.fillStyle = "rgb(200, 200, 200)";
+      canvas.fillRect(0, 0, WIDTH, HEIGHT);
+      canvas.lineWidth = 2;
+      canvas.strokeStyle = "rgb(0, 0, 0)";
+      canvas.beginPath();
+
+      let sliceWidth = (WIDTH * 1.0) / bufferLength;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        let v = dataArray[i] / 128.0;
+        let y = (v * HEIGHT) / 2;
+
+        if (i === 0) {
+          canvas.moveTo(x, y);
+        } else {
+          canvas.lineTo(x, y);
+        }
+
+        x += sliceWidth;
+      }
+
+      canvas.lineTo(canvas.width, canvas.height / 2);
+      canvas.stroke();
+    };
+
+    draw();
   };
 
   const stopRecording = () => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
+
       setRecording(false);
       mediaRecorderRef.current.ondataavailable = (event) => {
         const updatedRecordings = [...recordings];
@@ -78,6 +198,11 @@ const AudioRecorder = () => {
 
   const uploadRecordings = async () => {
     const formData = new FormData();
+    if (!voiceId) {
+      console.error("VoiceId is not available for upload.");
+      return;
+    }
+    formData.append("voiceId", voiceId);
     formData.append("title", recordingTitle);
     formData.append("userId", user_id);
     const allRecorded = recordings.every((recording) => recording !== null);
@@ -122,58 +247,53 @@ const AudioRecorder = () => {
       // Handle error here
     }
   };
+  const allRecorded = recordings.every((recording) => recording !== null);
 
   return (
-    <div>
-      <div style={{ textAlign: "left" }}>
-        <h2>Audio Recorder</h2>
-        <Input
-          type="text"
-          placeholder="Enter recording title..."
-          value={recordingTitle}
-          onChange={(e) => setRecordingTitle(e.target.value)}
-        />
-      </div>
-      <h3>Recording progress: {currentSentenceIndex + 1}/{sentences.length}</h3>
-      <p>{sentences[currentSentenceIndex]}</p>
-      <main>
-        <div className="audio-controls">
-          {!permission && (
-            <Button onClick={getMicrophonePermission}>
-              <AudioOutlined />
-              Get Microphone
-            </Button>
-          )}
-          {permission && !recording && (
-            <Button onClick={startRecording}>Start Recording</Button>
-          )}
-          {recording && <Button onClick={stopRecording}>Stop Recording</Button>}
+    <>
+      <RecorderContainer>
+        <div style={{ padding: "20px" }}>
+          <h2>Audio Recorder</h2>
+          <Input
+            type="text"
+            placeholder="Enter recording title..."
+            value={recordingTitle}
+            onChange={(e) => setRecordingTitle(e.target.value)}
+          />
         </div>
-        <h1> </h1>
-        {recordings[currentSentenceIndex] && (
-          <audio src={recordings[currentSentenceIndex]} controls />
-        )}
-
-        <div>
+        <h3>
+          Recording progress: {currentSentenceIndex + 1}/{sentences.length}
+        </h3>
+        <p>{sentences[currentSentenceIndex]}</p>
+        <Waveform ref={canvasRef} />
+        <Controls>
           <Button
+            icon={<LeftOutlined />}
             onClick={previousSentence}
             disabled={currentSentenceIndex === 0}
-          >
-            <LeftOutlined /> Previous Sentence
-          </Button>
+          />
+          {recordings[currentSentenceIndex] && (
+            <audio src={recordings[currentSentenceIndex]} controls />
+          )}
+          <RecordButton onClick={recording ? stopRecording : startRecording}>
+            {recording ? "Stop" : "Record"}
+          </RecordButton>
           <Button
+            icon={<RightOutlined />}
             onClick={nextSentence}
             disabled={currentSentenceIndex === sentences.length - 1}
-          >
-            Next Sentence
-            <RightOutlined />
-          </Button>
-        </div>
-        <Button onClick={uploadRecordings} disabled={!recordingTitle}>
-          Save Recordings
-        </Button>
-      </main>
-    </div>
+          />
+        </Controls>
+        <h1> </h1>
+        <Button
+        onClick={uploadRecordings}
+        disabled={!recordingTitle || !allRecorded}
+      >
+        Save Recordings
+      </Button>
+      </RecorderContainer>
+
+    </>
   );
 };
 

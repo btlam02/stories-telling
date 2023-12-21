@@ -2,28 +2,32 @@
 const mongoose = require('mongoose');
 
 const recordingSchema = new mongoose.Schema({
-  url: {  // Lưu trữ URL dẫn đến file âm thanh
+  url: {  
     type: String,
     required: true
   }
 });
 
 const audioSchema = new mongoose.Schema({
+  voiceId:{
+    type: String,
+  }, 
   title: {
     type: String,
     required: true
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId, // Sử dụng ObjectId cho liên kết với User
+    type: mongoose.Schema.Types.ObjectId, 
     ref: 'User',
     required: true
   },
+
   recordings: [recordingSchema],
   createdAt: {
     type: Date,
     default: Date.now
   },
-  private: {  // Thêm trường private để chỉ định quyền riêng tư của bản ghi âm
+  private: {  
     type: Boolean,
     default: true
   }

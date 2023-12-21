@@ -10,7 +10,7 @@ const AudioList = () => {
     const fetchAudios = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8000/api/audio/list?userId=${userId}`
+          `http://localhost:8000/api/audio/list/${userId}`
         );
         setAudios(response.data);
         if (response.data.length > 0) {
@@ -33,7 +33,7 @@ const AudioList = () => {
   return (
     <div>
       <div>
-        <h2>List Audios</h2>
+        <h2>List Voice</h2>
         <select value={selectedAudio} onChange={handleAudioChange}>
           {audios.map((audio) => (
             <option key={audio._id} value={audio._id}>

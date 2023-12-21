@@ -41,11 +41,11 @@ const Navbar = () => {
               </NavLink>
               {user.role === "user" && (
                 <NavLink
-                  to="/voice"
+                  to="/Playlist"
                   activeClassName="active"
                   className="nav-link"
                 >
-                  Voice
+                  Playlist
                 </NavLink>
               )}
             </>

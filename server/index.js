@@ -7,7 +7,11 @@ const cors = require('cors')
 
 const Auth = require('./routes/auth')
 const UserRoute = require('./routes/user')
-const Voice = require('./routes/voice')
+const Voice = require('./routes/voice');
+const Genre = require('./routes/genre');
+const Stories = require('./routes/stories'); 
+const Wishlist = require('./routes/wishlist'); 
+
 const app = express(); 
 
 require('dotenv').config();
@@ -27,6 +31,9 @@ const port = process.env.PORT || 8001;
 app.use('/api', Auth); 
 app.use('/api', UserRoute);
 app.use('/api', Voice); 
+app.use('/api', Genre); 
+app.use('/api', Stories); 
+app.use('/api', Wishlist); 
 
 
 app.listen(port,()=>{

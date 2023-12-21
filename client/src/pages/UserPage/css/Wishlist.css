@@ -1,0 +1,23 @@
+.wishlist-container {
+    width: 80%;
+    margin: 0 auto;
+  }
+  
+  .wishlist-item {
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .details {
+    flex-grow: 1;
+  }
+  
+  .actions button {
+    margin-left: 5px;
+  }
+  
