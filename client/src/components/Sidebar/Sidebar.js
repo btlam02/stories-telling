@@ -4,14 +4,14 @@ import {Input} from 'antd'
 
 const Sidebar = ({ onSearch, onCategorySelect, categories, selectedCategory }) => {
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ textAlign:'left' ,padding: "20px" }}>
       <div style={{ marginBottom: "20px" }}>
         <h3 style={{textAlign:'left'}}>Search</h3>
-        <Input
+        <Input 
           type="text"
           placeholder="Search stories..."
           onChange={e => onSearch(e.target.value)}
-          style={{ width: "100%" }}
+          style={{ width: "200px", height: "30px" }}
         />
       </div>
       <div>

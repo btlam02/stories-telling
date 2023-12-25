@@ -4,18 +4,19 @@
   
   .sidebar {
     width: 20%;
-    margin-left: 100px;
-    background-color: #f0f0f0;
+    margin-left: 50px;
+    background-color: #bbb1b1;
     border: 2px solid black;
     height: 100vh;
+    width: 50vh;
   }
   
   .storyCardsContainer {
-    width: 80%;
+    width: 100%;
   }
   
   .cards {
-    margin-top: 200px;
+    margin-top: 20px;
     margin-left: 20px;
     display: flex;
     flex-wrap: wrap;
@@ -39,8 +40,8 @@
 .pageContainer {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
-    padding: 50px;
+    gap: 0px;
+    padding: 30px;
   }
   
   .sidebarContainer {
@@ -48,12 +49,12 @@
   }
   
   .mainContent {
-    flex: 4 1 auto;
+    flex: 6 6 1000px;
   }
   
   .storyCardContainer {
-    flex: 1 0 21%;
-    max-width: 21%;
+    flex: 1 0 25%;
+    max-width: 25%;
   }
   
   @media (max-width: 1200px) {

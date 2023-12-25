@@ -107,10 +107,6 @@ const ManageStories = () => {
         }
       }
 
-      // Thêm thông tin giọng đọc mặc định vào formData
-      formData.append("defaultVoice.narrator", values.defaultVoice.narrator);
-      formData.append("defaultVoice.audioUrl", values.defaultVoice.audioUrl);
-
       // Thêm file ảnh vào formData nếu có
       const imageField = form.getFieldValue("imageUrl");
       if (imageField && imageField.fileList.length > 0) {
@@ -298,12 +294,6 @@ const ManageStories = () => {
                 style={{ maxWidth: "100%", marginTop: "10px" }}
               />
             )}
-          </Form.Item>
-          <Form.Item name="defaultVoice.narrator" label="Default Narrator">
-            <Input />
-          </Form.Item>
-          <Form.Item name="defaultVoice.audioUrl" label="Default Audio URL">
-            <Input />
           </Form.Item>
         </Form>
       </Modal>

@@ -70,7 +70,7 @@ async function uploadAudioToDrive() {
   const drive = google.drive({ version: "v3", auth: oAuth2Client });
 
   const fileMetadata = {
-    name: audioFilePath.split("/").pop(), // Lấy tên tệp từ đường dẫn
+    name: audioFilePath.split("/").pop(), 
   };
 
 

@@ -12,7 +12,7 @@ import styles from './StoriesPage.module.css';
 const API_URL = "http://localhost:8000/api";
 
 const StoriesPage = () => {
-  const storiesPerPage = 9;
+  const storiesPerPage = 6;
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('');
@@ -90,7 +90,7 @@ const StoriesPage = () => {
       />
     </div>
     <div className={styles.mainContent}>
-      <div className={styles.storiesContainer}> {/* Sử dụng class mới cho container */}
+      <div className={styles.storiesContainer}> 
         {currentStories.map(story => (
           <div className={styles.storyCardContainer} key={story._id}>
             <StoriesCard 

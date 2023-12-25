@@ -41,7 +41,7 @@ const Navbar = () => {
               </NavLink>
               {user.role === "user" && (
                 <NavLink
-                  to="/Playlist"
+                  to="/user/playlist"
                   activeClassName="active"
                   className="nav-link"
                 >

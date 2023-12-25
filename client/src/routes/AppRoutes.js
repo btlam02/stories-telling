@@ -10,7 +10,7 @@ import ManageUsers from "../pages/AdminPage/ManageUsers"
 import PlayStories from "../pages/PlayStories/PlayStoriesPage";
 import StoriesPage from "../pages/StoriesPage/Stories";
 import WishlistPage from "../pages/UserPage/Wishlist";
-
+import PlaylistPage from "../pages/UserPage/Playlist";
 
 
 const AppRoutes = () => {
@@ -23,7 +23,8 @@ const AppRoutes = () => {
         <Route path="/admin/dashboard" element={<AdminRoutes><App/></AdminRoutes>}/>
         <Route path = "/story" element ={<StoriesPage/>}/> 
         <Route path="/user/dashboard" element={<UserRoutes><UserPage /></UserRoutes>} />
-        <Route path="/user/wishlist" element={<UserRoutes><WishlistPage /></UserRoutes>} />
+        <Route path="/user/wishlist" element={<UserRoutes><WishlistPage/></UserRoutes>} />
+        <Route path ="/user/playlist" element={<PlaylistPage/>}/>  
         <Route path="/play" element={<PlayStories />} />
       </Routes>
     </>
