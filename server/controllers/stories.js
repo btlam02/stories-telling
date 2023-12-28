@@ -1,5 +1,6 @@
 // storyController.js
-const Story = require("../models/stories"); // Cập nhật đường dẫn nếu cần
+const Story = require("../models/stories");
+const { exec } = require('child_process'); // Cập nhật đường dẫn nếu cần
 
 const addStory = async (req, res) => {
   try {
@@ -97,11 +98,15 @@ const deleteStory = async (req, res) => {
   }
 };
 
+
+
+
 module.exports = {
   addStory,
   getAllStories,
   getStory,
   updateStory,
   deleteStory,
-  activeStory
+  activeStory,
 };
+

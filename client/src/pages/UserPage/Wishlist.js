@@ -4,12 +4,17 @@ import { Table, Button, message, Select } from "antd";
 const { Option } = Select;
 
 const WishlistPage = () => {
+
+
+  const baseUrl = "http://localhost:8000/api"
   const [wishlist, setWishlist] = useState([]);
   const [generatedStories, setGeneratedStories] = useState([]);
   const [selectedStoryId, setSelectedStoryId] = useState(null); // Trạng thái để lưu câu chuyện đã chọn để thêm vào bảng thứ hai
   const userId = localStorage.getItem("id");
   const [voices, setVoices] = useState([]);
   const [voiceSelections, setVoiceSelections] = useState({});
+
+
 
   const handleVoiceChange = (value, storyId) => {
     setVoiceSelections((prevSelections) => ({
@@ -50,7 +55,9 @@ const WishlistPage = () => {
     // Fetch voices using the userId, this should return an array of voice objects
     const fetchVoices = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/audio/list/${userId}`);
+        const response = await axios.get(
+          `http://localhost:8000/api/audio/list/${userId}`
+        );
         setVoices(response.data); // Assuming response.data is an array of voice objects with id and name
       } catch (error) {
         console.error("Error fetching voices:", error);
@@ -60,10 +67,16 @@ const WishlistPage = () => {
 
     fetchVoices();
   }, [userId]);
-  
+
+
+
+
+
+ 
+
 
   useEffect(() => {
-    // Fetch the user's wishlist
+
     axios
       .get(`http://localhost:8000/api/wishlist/${userId}`)
       .then((response) => {
@@ -82,6 +95,10 @@ const WishlistPage = () => {
       });
   }, [userId]);
 
+
+
+
+  
   const removeFromWishlist = (storyId) => {
     axios
       .delete(`http://localhost:8000/api/wishlist/${userId}/remove/${storyId}`)
@@ -101,53 +118,158 @@ const WishlistPage = () => {
       });
   };
 
-  //   const generateStory = (storyId) => {
-  //     axios
-  //       .post(`http://localhost:8000/api/generate/story/${storyId}`)
-  //       .then((response) => {
-  //         if (response.status === 200) {
-  //           message.success("Story generated successfully.");
-  //           setGeneratedStories((prevGeneratedStories) => [
-  //             ...prevGeneratedStories,
-  //             response.data.story,
-  //           ]);
-  //           setSelectedStoryId(response.data.story._id); // Lưu ID của câu chuyện đã tạo thành công
-  //           removeFromWishlist(storyId);
-  //         } else {
-  //           message.error("Failed to generate story.");
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error generating story:", error);
-  //         message.error("Failed to generate story.");
-  //       });
-  //   };
+  const fetchVoiceFile = async (fileUrl) => {
+    try {
+      const response = await fetch(fileUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const blob = await response.blob();
+      return new File([blob], "voiceFile.wav", { type: 'audio/wav' });
+    } catch (error) {
+      console.error("Error fetching voice file:", error);
+      throw error;
+    }
+  };
+  
 
-  const generateStory = (storyId) => {
-    // Mock data for a generated story
-    const generatedStory = {
-      _id: storyId, // Using the same ID as the wishlist story for simplicity
-      title: `Generated Story for ${storyId}`,
-      imageUrl: "http://example.com/generated-image.jpg", // Example image URL
-    };
 
-    // Simulating successful API response
-    setTimeout(() => {
+  const validateVoice = async (voiceFile, sessionId) => {
+    const formData = new FormData();
+    formData.append("selectedFile", voiceFile); 
+    formData.append("data", JSON.stringify({
+      session: sessionId,
+      youtubeURL: "",
+      checkedOverwrite: "true",
+    }));
+  
+    try {
+      const response = await axios.post(
+        "https://research.vinbase.ai/voiceclone/validate",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: "Basic c3BlZWNoX29vdjo0RDYkJiU5cWVFaHZSVGVS",
+          },
+        }
+      );
+      if (response.data.validate_status) {
+        return response.data.session;
+      } else {
+        throw new Error("Voice validation failed");
+      }
+    } catch (error) {
+      console.error("Error during voice validation:", error);
+      throw error;
+    }
+  };
+  
+
+  const trainVoiceModel = async (sessionId) => {
+    const response = await axios.post(
+      "https://research.vinbase.ai/voiceclone/train",
+      {
+        session: sessionId,
+        trainingTime: 0,
+        aligner: "",
+        denoiser: "",
+        asr: "",
+        speakerrate: "",
+        balance: "",
+        duration: "",
+        checkedRetrain: "False",
+      },
+      {
+        headers: {
+          Authorization: "Basic c3BlZWNoX29vdjo0RDYkJiU5cWVFaHZSVGVS",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data.train_status) {
+      return true;
+    } else {
+      throw new Error("Voice training failed");
+    }
+  };
+  const generateAudio = async (sessionId, text) => {
+    const response = await axios.post(
+      "https://research.vinbase.ai/voiceclone/infer",
+      {
+        session: sessionId,
+        text: text,
+        pitch: 1,
+        speed: 1.0,
+        lang: "vi",
+      },
+      {
+        headers: {
+          Authorization: "Basic c3BlZWNoX29vdjo0RDYkJiU5cWVFaHZSVGVS",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data.infer_status) {
+      return response.data.full_audio;
+    } else {
+      throw new Error("Audio generation failed");
+    }
+  };
+
+  const retrieveAudio = async (audioPath) => {
+    const response = await axios.get(
+      `https://research.vinbase.ai/voiceclone/getaudio?filename=${audioPath}`,
+      {
+        headers: {
+          Authorization: "Basic c3BlZWNoX29vdjo0RDYkJiU5cWVFaHZSVGVS",
+        },
+        responseType: "blob",
+      }
+    );
+
+    return URL.createObjectURL(response.data);
+  };
+
+
+
+  const generateStory = async (storyId) => {
+    const voiceId = voiceSelections[storyId];
+    if (!voiceId) {
+      message.warning("Please select a voice to generate the story.");
+      return;
+    }
+    const selectedVoice = voices.find(voice => voice._id === voiceId);
+    if (!selectedVoice) {
+      message.error("Selected voice not found.");
+      return;
+    }
+
+    const baseUrl = "http://localhost:8000/";
+    const relativeFilePath = selectedVoice.recordings[0].url;
+    const fullFileUrl = new URL(relativeFilePath, baseUrl).href;
+
+
+    try {
+      const voiceFile = await fetchVoiceFile(fullFileUrl);
+      const sessionId = voiceId;
+      await validateVoice(voiceFile, sessionId);
+      await trainVoiceModel(sessionId);
+      const storyText = 'Tôi không biết tôi là ai hết'; // Replace with actual story text
+      const audioPath = await generateAudio(sessionId, storyText);
+      await retrieveAudio(audioPath);
       message.success("Story generated successfully.");
-      setGeneratedStories((prevGeneratedStories) => [
-        ...prevGeneratedStories,
-        generatedStory,
-      ]);
-      setSelectedStoryId(generatedStory._id);
-      removeFromWishlist(storyId);
-    }, 500); // Simulate a delay of 500ms to mimic an API call
+      // Update UI as needed
+    } catch (error) {
+      console.error("Error in voice cloning process:", error);
+      message.error("Failed to generate story.");
+    }
   };
 
   const addToPlaylist = (storyId) => {
-    // Thêm câu chuyện vào danh sách phát
-    // Thực hiện logic tương tự như chức năng Remove from Wishlist
-    // Tùy chỉnh theo nhu cầu của bạn
-    // ...
+
   };
 
   const wishlistColumns = [
@@ -170,8 +292,8 @@ const WishlistPage = () => {
     },
 
     {
-      title: 'Voice',
-      key: 'voice',
+      title: "Voice",
+      key: "voice",
       render: (text, record) => (
         <Select
           style={{ width: 120 }}
@@ -194,11 +316,7 @@ const WishlistPage = () => {
         <>
           <Button
             type="primary"
-            icon={
-              <span role="img" aria-label="Generate">
-                🎧
-              </span>
-            }
+            icon={<span role="img" aria-label="Generate"></span>}
             style={{ marginRight: 16 }}
             onClick={() => generateStory(record._id)}
           >
@@ -206,11 +324,7 @@ const WishlistPage = () => {
           </Button>
           <Button
             type="danger"
-            icon={
-              <span role="img" aria-label="Remove from Wishlist">
-                ❌
-              </span>
-            }
+            icon={<span role="img" aria-label="Remove from Wishlist"></span>}
             onClick={() => removeFromWishlist(record._id)}
           >
             Remove from Wishlist

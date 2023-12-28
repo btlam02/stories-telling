@@ -16,7 +16,7 @@ const app = express();
 
 require('dotenv').config();
 
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', cors(), express.static('uploads'));
 
 mongoose.connect(process.env.DATABASE).then(()=>console.log('DB Connected'))
 

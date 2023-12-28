@@ -9,7 +9,6 @@ const PlaylistPage = () => {
       key: "1",
       title: "Rich Dad Poor Dad",
       voice: "Dad_01",
-      duration: "15m30s",
       // Bạn cần thêm URL hoặc đường dẫn tới file audio ở đây
       audioUrl: "http://example.com/audio/dad_01.mp3",
     },

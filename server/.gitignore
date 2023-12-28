@@ -4,3 +4,4 @@
 .env
 #database account
 /note.txt
+/token.json

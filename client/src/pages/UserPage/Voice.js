@@ -39,16 +39,8 @@ const RecordButton = styled(Button)`
 `;
 
 const sentences = [
-  "Xuân sang cành lá đâm chồi, bao buồn vui qua rồi đưa con về với yên bình",
-  "Câu thứ hai để ghi âm.",
-  "Câu thứ hai để ghi âm.",
-  "Câu thứ hai để ghi âm.",
-  "Câu thứ hai để ghi âm.",
-  "Câu thứ hai để ghi âm.",
-  "Câu thứ hai để ghi âm.",
-  "Câu thứ hai để ghi âm.",
-  "Câu thứ hai để ghi âm.",
-  "Câu thứ hai để ghi âm.",
+  "Xuân sang cành lá đâm chồi, bao buồn vui qua rồi đưa con về với yên bình.Đưa con về với gia đình nặng nghĩa ân tình. Cây mai đào khoe sắc tô thêm màu nhẹ nhàng trong nắng xuân tươi hồng cùng nhịp..."
+  
 ];
 
 const AudioRecorder = () => {
@@ -70,7 +62,7 @@ const AudioRecorder = () => {
   const canvasCtxRef = useRef(null);
 
   useEffect(() => {
-    getMicrophonePermission(); // Tự động yêu cầu quyền Micro khi component được mount
+    getMicrophonePermission(); 
     if (canvasRef.current) {
       canvasCtxRef.current = canvasRef.current.getContext("2d");
     }
@@ -122,7 +114,7 @@ const AudioRecorder = () => {
     if (mediaRecorderRef.current && !recording) {
       mediaRecorderRef.current.start();
       setRecording(true);
-      visualize(); // Kích hoạt hiển thị sóng âm
+      visualize(); 
     }
   };
   const visualize = () => {
@@ -221,7 +213,7 @@ const AudioRecorder = () => {
       if (recordingUrl) {
         const response = await fetch(recordingUrl);
         const blob = await response.blob();
-        formData.append("recording", blob, `${recordingTitle}-${i}.mp3`);
+        formData.append("recording", blob, `${recordingTitle}-${i}.wav`);
       }
       Swal.fire({
         title: "Your Record have been save!",
@@ -247,6 +239,9 @@ const AudioRecorder = () => {
       // Handle error here
     }
   };
+
+  
+
   const allRecorded = recordings.every((recording) => recording !== null);
 
   return (
