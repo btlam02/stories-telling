@@ -11,7 +11,7 @@ const getWishlist = async (req, res) => {
       if (!wishlist) {
         return res.status(404).send('Wishlist not found');
       }
-      // Cập nhật đường dẫn của ảnh để phản ánh đường dẫn tĩnh
+      
       wishlist = wishlist.toObject();
       wishlist.stories = wishlist.stories.map(story => {
         if (story.imageUrl) {

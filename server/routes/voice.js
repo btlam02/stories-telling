@@ -35,7 +35,22 @@ const storage = multer.diskStorage({
   },
 });
 
+
+const audioStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+      cb(null, 'uploads/audios'); // Thư mục lưu file âm thanh đã generated
+  },
+  filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, file.fieldname + '-' + uniqueSuffix);
+  }
+});
+
 const upload = multer({ storage: storage });
+const audioUpload = multer({ storage: audioStorage });
+
+
+
 
 router.post("/audio/new-audio", upload.array("recording"), async (req, res) => {
     try {

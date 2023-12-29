@@ -99,7 +99,36 @@ const deleteStory = async (req, res) => {
 };
 
 
+const uploadVoice = async (req, res) => {
+  try {
+      const storyId = req.body.storyId; // Đảm bảo rằng storyId được gửi lên từ client
+      if (!req.file) {
+          return res.status(400).send({ message: "No file uploaded." });
+      }
 
+      const voice = {
+          narrator: req.body.narrator || "Unknown", // Thêm một trường narrator từ client nếu có
+          audioUrl: req.file.path, // Đường dẫn của file âm thanh vừa được tải lên
+          status: 'completed', // Cập nhật trạng thái của file âm thanh
+          userId: req.user._id, // Định danh người dùng từ session hoặc JWT
+      };
+
+      // Tìm câu chuyện và cập nhật userVoices
+      const story = await Story.findById(storyId);
+      if (!story) {
+          return res.status(404).send({ message: "Story not found." });
+      }
+
+      // Thêm voice mới vào mảng userVoices của câu chuyện
+      story.userVoices.push(voice);
+      await story.save(); // Lưu lại câu chuyện đã được cập nhật
+
+      res.status(200).send({ message: "Voice uploaded successfully.", voice });
+  } catch (error) {
+      console.error('Error uploading voice:', error);
+      res.status(500).send({ message: "Internal Server Error" });
+  }
+};
 
 module.exports = {
   addStory,
@@ -108,5 +137,6 @@ module.exports = {
   updateStory,
   deleteStory,
   activeStory,
+  uploadVoice,
 };
 

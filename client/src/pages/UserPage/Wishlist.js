@@ -19,37 +19,10 @@ const WishlistPage = () => {
   const handleVoiceChange = (value, storyId) => {
     setVoiceSelections((prevSelections) => ({
       ...prevSelections,
-      [storyId]: value, // Cập nhật voiceId được chọn cho storyId
+      [storyId]: value,
     }));
   };
 
-  const handleGenerate = (storyId) => {
-    const voiceId = voiceSelections[storyId]; // Lấy voiceId từ state
-    if (!voiceId) {
-      message.warning("Please select a voice to generate the story.");
-      return;
-    }
-
-    // Gọi API để generate câu chuyện với giọng đọc được chọn
-    axios
-      .post(`http://localhost:8000/api/generate/story`, {
-        storyId: storyId,
-        voiceId: voiceId,
-      })
-      .then((response) => {
-        // Kiểm tra phản hồi và cập nhật UI tương ứng
-        if (response.data.success) {
-          message.success("Story generated successfully.");
-          // Cập nhật danh sách generated stories nếu cần
-        } else {
-          message.error("Failed to generate story.");
-        }
-      })
-      .catch((error) => {
-        console.error("Error generating story:", error);
-        message.error("Failed to generate story.");
-      });
-  };
 
   useEffect(() => {
     // Fetch voices using the userId, this should return an array of voice objects
@@ -69,12 +42,6 @@ const WishlistPage = () => {
   }, [userId]);
 
 
-
-
-
- 
-
-
   useEffect(() => {
 
     axios
@@ -87,6 +54,7 @@ const WishlistPage = () => {
             imageUrl: story.imageUrl
               ? `http://localhost:8000/${story.imageUrl}`
               : null,
+            description: story.description,
           }))
         );
       })
@@ -96,9 +64,6 @@ const WishlistPage = () => {
   }, [userId]);
 
 
-
-
-  
   const removeFromWishlist = (storyId) => {
     axios
       .delete(`http://localhost:8000/api/wishlist/${userId}/remove/${storyId}`)
@@ -219,6 +184,7 @@ const WishlistPage = () => {
     }
   };
 
+
   const retrieveAudio = async (audioPath) => {
     const response = await axios.get(
       `https://research.vinbase.ai/voiceclone/getaudio?filename=${audioPath}`,
@@ -235,7 +201,7 @@ const WishlistPage = () => {
 
 
 
-  const generateStory = async (storyId) => {
+  const generateStory = async (storyId, StoryDescription) => {
     const voiceId = voiceSelections[storyId];
     if (!voiceId) {
       message.warning("Please select a voice to generate the story.");
@@ -257,7 +223,7 @@ const WishlistPage = () => {
       const sessionId = voiceId;
       await validateVoice(voiceFile, sessionId);
       await trainVoiceModel(sessionId);
-      const storyText = 'Tôi không biết tôi là ai hết'; // Replace with actual story text
+      const storyText = StoryDescription; 
       const audioPath = await generateAudio(sessionId, storyText);
       await retrieveAudio(audioPath);
       message.success("Story generated successfully.");
@@ -318,7 +284,7 @@ const WishlistPage = () => {
             type="primary"
             icon={<span role="img" aria-label="Generate"></span>}
             style={{ marginRight: 16 }}
-            onClick={() => generateStory(record._id)}
+            onClick={() => generateStory(record._id, record.description)}
           >
             Generate
           </Button>

@@ -25,6 +25,7 @@ const voiceSchema = new mongoose.Schema({
 });
 
 
+
 const storySchema = new mongoose.Schema({
   title: String,
   author: String,
@@ -40,6 +41,11 @@ const storySchema = new mongoose.Schema({
     type: Boolean,
     default: false, 
   },
+  isGenerated: {
+    type: Boolean,
+    default: false, 
+  },
+  
   defaultVoice:[voiceSchema],
   userVoices: [voiceSchema],
 });
