@@ -5,41 +5,42 @@ const { Option } = Select;
 
 const WishlistPage = () => {
 
-
-  const baseUrl = "http://localhost:8000/api"
   const [wishlist, setWishlist] = useState([]);
   const [generatedStories, setGeneratedStories] = useState([]);
   const [selectedStoryId, setSelectedStoryId] = useState(null); // Trạng thái để lưu câu chuyện đã chọn để thêm vào bảng thứ hai
   const userId = localStorage.getItem("id");
   const [voices, setVoices] = useState([]);
   const [voiceSelections, setVoiceSelections] = useState({});
+  const [voiceId, setVoiceId] = useState({})
 
 
-
-  const handleVoiceChange = (value, storyId) => {
-    setVoiceSelections((prevSelections) => ({
+  const handleVoiceChange = (voiceId, storyId) => {
+    setVoiceSelections(prevSelections => ({
       ...prevSelections,
-      [storyId]: value,
+      [storyId]: voiceId,
     }));
   };
-
+  
 
   useEffect(() => {
     // Fetch voices using the userId, this should return an array of voice objects
     const fetchVoices = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:8000/api/audio/list/${userId}`
-        );
-        setVoices(response.data); // Assuming response.data is an array of voice objects with id and name
+        const response = await axios.get(`http://localhost:8000/api/audio/list/${userId}`);
+        // If voiceId is a direct property of the voice object, this is correct.
+        // If it's nested inside another object, you need to adjust the path accordingly.
+        setVoices(response.data);
       } catch (error) {
         console.error("Error fetching voices:", error);
         message.error("Failed to fetch voices.");
       }
     };
+    
 
     fetchVoices();
   }, [userId]);
+
+
 
 
   useEffect(() => {
@@ -83,82 +84,9 @@ const WishlistPage = () => {
       });
   };
 
-  const fetchVoiceFile = async (fileUrl) => {
-    try {
-      const response = await fetch(fileUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const blob = await response.blob();
-      return new File([blob], "voiceFile.wav", { type: 'audio/wav' });
-    } catch (error) {
-      console.error("Error fetching voice file:", error);
-      throw error;
-    }
-  };
-  
 
 
-  const validateVoice = async (voiceFile, sessionId) => {
-    const formData = new FormData();
-    formData.append("selectedFile", voiceFile); 
-    formData.append("data", JSON.stringify({
-      session: sessionId,
-      youtubeURL: "",
-      checkedOverwrite: "true",
-    }));
-  
-    try {
-      const response = await axios.post(
-        "https://research.vinbase.ai/voiceclone/validate",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: "Basic c3BlZWNoX29vdjo0RDYkJiU5cWVFaHZSVGVS",
-          },
-        }
-      );
-      if (response.data.validate_status) {
-        return response.data.session;
-      } else {
-        throw new Error("Voice validation failed");
-      }
-    } catch (error) {
-      console.error("Error during voice validation:", error);
-      throw error;
-    }
-  };
-  
 
-  const trainVoiceModel = async (sessionId) => {
-    const response = await axios.post(
-      "https://research.vinbase.ai/voiceclone/train",
-      {
-        session: sessionId,
-        trainingTime: 0,
-        aligner: "",
-        denoiser: "",
-        asr: "",
-        speakerrate: "",
-        balance: "",
-        duration: "",
-        checkedRetrain: "False",
-      },
-      {
-        headers: {
-          Authorization: "Basic c3BlZWNoX29vdjo0RDYkJiU5cWVFaHZSVGVS",
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (response.data.train_status) {
-      return true;
-    } else {
-      throw new Error("Voice training failed");
-    }
-  };
   const generateAudio = async (sessionId, text) => {
     const response = await axios.post(
       "https://research.vinbase.ai/voiceclone/infer",
@@ -200,34 +128,17 @@ const WishlistPage = () => {
   };
 
 
-
   const generateStory = async (storyId, StoryDescription) => {
-    const voiceId = voiceSelections[storyId];
-    if (!voiceId) {
-      message.warning("Please select a voice to generate the story.");
-      return;
-    }
-    const selectedVoice = voices.find(voice => voice._id === voiceId);
-    if (!selectedVoice) {
-      message.error("Selected voice not found.");
-      return;
-    }
-
-    const baseUrl = "http://localhost:8000/";
-    const relativeFilePath = selectedVoice.recordings[0].url;
-    const fullFileUrl = new URL(relativeFilePath, baseUrl).href;
-
-
+    const selectedVoiceId = voiceSelections[storyId];
+    console.log(selectedVoiceId); 
+  if (!selectedVoiceId) {
+    message.warning("Please select a voice to generate the story.");
+    return;
+  }
     try {
-      const voiceFile = await fetchVoiceFile(fullFileUrl);
-      const sessionId = voiceId;
-      await validateVoice(voiceFile, sessionId);
-      await trainVoiceModel(sessionId);
-      const storyText = StoryDescription; 
-      const audioPath = await generateAudio(sessionId, storyText);
+      const audioPath = await generateAudio(selectedVoiceId, StoryDescription);
       await retrieveAudio(audioPath);
       message.success("Story generated successfully.");
-      // Update UI as needed
     } catch (error) {
       console.error("Error in voice cloning process:", error);
       message.error("Failed to generate story.");
@@ -264,11 +175,12 @@ const WishlistPage = () => {
         <Select
           style={{ width: 120 }}
           onChange={(value) => handleVoiceChange(value, record._id)}
-          value={voiceSelections[record._id]} // Set the current value for each Select
+          value={voiceSelections[record._id]}
         >
           {voices.map((voice) => (
-            <Option key={voice._id} value={voice._id}>
-              {voice.title} {/* Displaying the voice name */}
+            // Ensure this uses the correct property for voiceId from your data
+            <Option key={voice._id} value={voice.voiceId || voice._id}>
+              {voice.title}
             </Option>
           ))}
         </Select>
@@ -324,6 +236,8 @@ const WishlistPage = () => {
       ),
     },
   ];
+
+
 
   const generatedColumns = [
     {

@@ -99,36 +99,46 @@ const deleteStory = async (req, res) => {
 };
 
 
-const uploadVoice = async (req, res) => {
+const uploadUserAudio = async (req, res) => {
   try {
-      const storyId = req.body.storyId; // Đảm bảo rằng storyId được gửi lên từ client
-      if (!req.file) {
-          return res.status(400).send({ message: "No file uploaded." });
-      }
+      const storyId = req.params.storyId;
+      const { userId, voiceId } = req.body;
+      const audioUrl = req.file.path; 
 
-      const voice = {
-          narrator: req.body.narrator || "Unknown", // Thêm một trường narrator từ client nếu có
-          audioUrl: req.file.path, // Đường dẫn của file âm thanh vừa được tải lên
-          status: 'completed', // Cập nhật trạng thái của file âm thanh
-          userId: req.user._id, // Định danh người dùng từ session hoặc JWT
-      };
-
-      // Tìm câu chuyện và cập nhật userVoices
       const story = await Story.findById(storyId);
       if (!story) {
-          return res.status(404).send({ message: "Story not found." });
+          return res.status(404).send('Story not found');
       }
 
-      // Thêm voice mới vào mảng userVoices của câu chuyện
-      story.userVoices.push(voice);
-      await story.save(); // Lưu lại câu chuyện đã được cập nhật
+      if (story.userId.toString() !== userId) {
+        return res.status(403).send('Unauthorized: This story does not belong to the current user');
+    }
 
-      res.status(200).send({ message: "Voice uploaded successfully.", voice });
+      let existingVoice = story.userVoices.find(voice => 
+          voice.userId.toString() === userId && voice._id.toString() === voiceId
+      );
+
+      if (existingVoice) {
+          existingVoice.audioUrl = audioUrl;
+          existingVoice.status = 'completed';
+      } else {
+          story.userVoices.push({
+              userId,
+              voiceId,
+              audioUrl,
+              status: 'completed',
+              // Các trường khác nếu cần
+          });
+      }
+      story.isGenerated = true;
+      await story.save();
+      res.status(200).send('Audio uploaded and story updated');
   } catch (error) {
-      console.error('Error uploading voice:', error);
-      res.status(500).send({ message: "Internal Server Error" });
+      console.error('Error uploading audio:', error);
+      res.status(500).send('Internal server error');
   }
 };
+
 
 module.exports = {
   addStory,
@@ -137,6 +147,7 @@ module.exports = {
   updateStory,
   deleteStory,
   activeStory,
-  uploadVoice,
+  uploadUserAudio,
 };
+
 

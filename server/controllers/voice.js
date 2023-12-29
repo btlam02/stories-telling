@@ -9,7 +9,6 @@ const addNewAudio = async (title, userId,voiceId,files) => {
     return newAudio;
 };
 
-
 const getAllAudios = async (req, res) => {
     try {
         const audios = await Audio.find({ userId: req.params.userId });

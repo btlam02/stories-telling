@@ -39,8 +39,7 @@ const RecordButton = styled(Button)`
 `;
 
 const sentences = [
-  "Xuân sang cành lá đâm chồi, bao buồn vui qua rồi đưa con về với yên bình.Đưa con về với gia đình nặng nghĩa ân tình. Cây mai đào khoe sắc tô thêm màu nhẹ nhàng trong nắng xuân tươi hồng cùng nhịp..."
-  
+  "Xuân sang cành lá đâm chồi, bao buồn vui qua rồi đưa con về với yên bình.Đưa con về với gia đình nặng nghĩa ân tình. Cây mai đào khoe sắc tô thêm màu nhẹ nhàng trong nắng xuân tươi hồng cùng nhịp...",
 ];
 
 const AudioRecorder = () => {
@@ -62,7 +61,7 @@ const AudioRecorder = () => {
   const canvasCtxRef = useRef(null);
 
   useEffect(() => {
-    getMicrophonePermission(); 
+    getMicrophonePermission();
     if (canvasRef.current) {
       canvasCtxRef.current = canvasRef.current.getContext("2d");
     }
@@ -114,9 +113,85 @@ const AudioRecorder = () => {
     if (mediaRecorderRef.current && !recording) {
       mediaRecorderRef.current.start();
       setRecording(true);
-      visualize(); 
+      visualize();
     }
   };
+
+  const validateVoice = async (voiceFile, sessionId) => {
+    const formData = new FormData();
+    formData.append("selectedFile", voiceFile);
+    formData.append(
+      "data",
+      JSON.stringify({
+        session: sessionId,
+        youtubeURL: "",
+        checkedOverwrite: "true",
+      })
+    );
+
+    try {
+      const response = await axios.post(
+        "https://research.vinbase.ai/voiceclone/validate",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: "Basic c3BlZWNoX29vdjo0RDYkJiU5cWVFaHZSVGVS",
+          },
+        }
+      );
+      if (response.data.validate_status) {
+        return response.data.session;
+      } else {
+        throw new Error("Voice validation failed");
+      }
+    } catch (error) {
+      console.error("Error during voice validation:", error);
+      throw error;
+    }
+  };
+
+  const trainVoiceModel = async (sessionId) => {
+    const response = await axios.post(
+      "https://research.vinbase.ai/voiceclone/train",
+      {
+        session: sessionId,
+        trainingTime: 0,
+        aligner: "",
+        denoiser: "",
+        asr: "",
+        speakerrate: "",
+        balance: "",
+        duration: "",
+        checkedRetrain: "False",
+      },
+      {
+        headers: {
+          Authorization: "Basic c3BlZWNoX29vdjo0RDYkJiU5cWVFaHZSVGVS",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data.train_status) {
+      return true;
+    } else {
+      throw new Error("Voice training failed");
+    }
+  };
+
+  const validateAndTrainVoice = async (voiceFile) => {
+    try {
+      console.log(voiceFile);
+      await validateVoice(voiceFile, voiceId);
+      const trainingResponse = await trainVoiceModel(voiceId);
+      return trainingResponse.train_status;
+    } catch (error) {
+      console.error("Error in voice processing:", error);
+      throw error;
+    }
+  };
+
   const visualize = () => {
     if (!analyserRef.current || !canvasCtxRef.current) return;
 
@@ -215,6 +290,7 @@ const AudioRecorder = () => {
         const blob = await response.blob();
         formData.append("recording", blob, `${recordingTitle}-${i}.wav`);
       }
+
       Swal.fire({
         title: "Your Record have been save!",
         text: "Continute!",
@@ -223,10 +299,18 @@ const AudioRecorder = () => {
       });
     });
 
+
+    const blobPromises2 = recordings.map(async (recordingUrl, i) => {
+      if (recordingUrl) {
+        const response = await fetch(recordingUrl);
+        return await response.blob();
+      }
+    });
+
     try {
       // Wait for all blobs to be appended to formData
       await Promise.all(blobPromises);
-
+      const blobs = await Promise.all(blobPromises2);
       // Now send the formData with axios
       const response = await axios.post(
         "http://localhost:8000/api/audio/new-audio",
@@ -234,13 +318,19 @@ const AudioRecorder = () => {
       );
       console.log("Upload successful", response.data);
       // Handle successful upload here
+      const voiceFile = new File(blobs, `${voiceId}.wav`, {
+        type: "audio/wav",
+      });
+      const voiceProcessingResult = await validateAndTrainVoice(voiceFile);
+      if (voiceProcessingResult) {
+        console.log("Voice processing successful");
+      } else {
+        console.error("Voice processing failed");
+      }
     } catch (error) {
       console.error("Error uploading recordings: ", error);
-      // Handle error here
     }
   };
-
-  
 
   const allRecorded = recordings.every((recording) => recording !== null);
 
@@ -281,13 +371,12 @@ const AudioRecorder = () => {
         </Controls>
         <h1> </h1>
         <Button
-        onClick={uploadRecordings}
-        disabled={!recordingTitle || !allRecorded}
-      >
-        Save Recordings
-      </Button>
+          onClick={uploadRecordings}
+          disabled={!recordingTitle || !allRecorded}
+        >
+          Save Recordings
+        </Button>
       </RecorderContainer>
-
     </>
   );
 };

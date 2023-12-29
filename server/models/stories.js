@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 
 // Giọng đọc 
 const voiceSchema = new mongoose.Schema({
-  narrator: String, // Đây là chổ để lưu role giọng đọc là của ai ! 
+  narrator: String, 
   audioUrl: String,
   status: {
     type: String,
