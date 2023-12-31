@@ -55,7 +55,6 @@ const addToWishlist = async (req, res) => {
     }
   };
   
-
 const removeFromWishlist = async (req, res) => {
     const userId = req.params.userId;
     const storyId = req.params.storyId;

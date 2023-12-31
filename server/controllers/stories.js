@@ -101,43 +101,40 @@ const deleteStory = async (req, res) => {
 
 const uploadUserAudio = async (req, res) => {
   try {
-      const storyId = req.params.storyId;
-      const { userId, voiceId } = req.body;
-      const audioUrl = req.file.path; 
+    const storyId = req.params.storyId;
+    const { userId, voiceId } = req.body;
 
-      const story = await Story.findById(storyId);
-      if (!story) {
-          return res.status(404).send('Story not found');
-      }
+    if (!req.file) {
+        return res.status(400).send('No audio file uploaded');
+    }
+    const audioUrl = req.file.path; 
 
-      if (story.userId.toString() !== userId) {
-        return res.status(403).send('Unauthorized: This story does not belong to the current user');
+    const story = await Story.findById(storyId);
+    if (!story) {
+        return res.status(404).send('Story not found');
     }
 
-      let existingVoice = story.userVoices.find(voice => 
-          voice.userId.toString() === userId && voice._id.toString() === voiceId
-      );
+    // Thêm giọng nói vào danh sách userVoices
+    story.userVoices.push({
+        userId,
+        voiceId,
+        audioUrl,
+        status: 'completed',
+    });
 
-      if (existingVoice) {
-          existingVoice.audioUrl = audioUrl;
-          existingVoice.status = 'completed';
-      } else {
-          story.userVoices.push({
-              userId,
-              voiceId,
-              audioUrl,
-              status: 'completed',
-              // Các trường khác nếu cần
-          });
-      }
-      story.isGenerated = true;
-      await story.save();
-      res.status(200).send('Audio uploaded and story updated');
+    // Cập nhật trạng thái generated và thông tin về giọng nói được sử dụng
+    story.isGenerated = true;
+    story.generatedVoice = voiceId;
+    story.generatedByUserId = userId;
+    
+    await story.save();
+    res.status(200).send('Audio uploaded and story updated');
   } catch (error) {
       console.error('Error uploading audio:', error);
       res.status(500).send('Internal server error');
   }
 };
+
 
 
 module.exports = {

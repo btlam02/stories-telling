@@ -44,10 +44,9 @@ const audioStorage = multer.diskStorage({
   }
 });
 
+
 const upload = multer({ storage: storage });
 const audioUpload = multer({ storage: audioStorage });
-
-
 
 
 router.post("/audio/new-audio", upload.array("recording"), async (req, res) => {
@@ -79,3 +78,4 @@ router.post("/voice/generate-id", (req, res) => {
 router.get("/audio/list/:userId", getAllAudios);
 
 module.exports = router;
+ 

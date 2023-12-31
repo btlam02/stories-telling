@@ -4,29 +4,28 @@ import { Table, Button, message, Select } from "antd";
 const { Option } = Select;
 
 const WishlistPage = () => {
-
   const [wishlist, setWishlist] = useState([]);
   const [generatedStories, setGeneratedStories] = useState([]);
   const [selectedStoryId, setSelectedStoryId] = useState(null); // Trạng thái để lưu câu chuyện đã chọn để thêm vào bảng thứ hai
   const userId = localStorage.getItem("id");
   const [voices, setVoices] = useState([]);
   const [voiceSelections, setVoiceSelections] = useState({});
-  const [voiceId, setVoiceId] = useState({})
-
+  const [voiceId, setVoiceId] = useState({});
 
   const handleVoiceChange = (voiceId, storyId) => {
-    setVoiceSelections(prevSelections => ({
+    setVoiceSelections((prevSelections) => ({
       ...prevSelections,
       [storyId]: voiceId,
     }));
   };
-  
 
   useEffect(() => {
     // Fetch voices using the userId, this should return an array of voice objects
     const fetchVoices = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/audio/list/${userId}`);
+        const response = await axios.get(
+          `http://localhost:8000/api/audio/list/${userId}`
+        );
         // If voiceId is a direct property of the voice object, this is correct.
         // If it's nested inside another object, you need to adjust the path accordingly.
         setVoices(response.data);
@@ -35,16 +34,11 @@ const WishlistPage = () => {
         message.error("Failed to fetch voices.");
       }
     };
-    
 
     fetchVoices();
   }, [userId]);
 
-
-
-
   useEffect(() => {
-
     axios
       .get(`http://localhost:8000/api/wishlist/${userId}`)
       .then((response) => {
@@ -64,7 +58,6 @@ const WishlistPage = () => {
       });
   }, [userId]);
 
-
   const removeFromWishlist = (storyId) => {
     axios
       .delete(`http://localhost:8000/api/wishlist/${userId}/remove/${storyId}`)
@@ -83,9 +76,6 @@ const WishlistPage = () => {
         message.error("Failed to remove from wishlist.");
       });
   };
-
-
-
 
   const generateAudio = async (sessionId, text) => {
     const response = await axios.post(
@@ -112,7 +102,6 @@ const WishlistPage = () => {
     }
   };
 
-
   const retrieveAudio = async (audioPath) => {
     const response = await axios.get(
       `https://research.vinbase.ai/voiceclone/getaudio?filename=${audioPath}`,
@@ -128,25 +117,68 @@ const WishlistPage = () => {
   };
 
 
+
+  // 
   const generateStory = async (storyId, StoryDescription) => {
     const selectedVoiceId = voiceSelections[storyId];
-    console.log(selectedVoiceId); 
-  if (!selectedVoiceId) {
-    message.warning("Please select a voice to generate the story.");
-    return;
-  }
+    console.log(selectedVoiceId);
+    if (!selectedVoiceId) {
+      message.warning("Please select a voice to generate the story.");
+      return;
+    }
     try {
       const audioPath = await generateAudio(selectedVoiceId, StoryDescription);
-      await retrieveAudio(audioPath);
-      message.success("Story generated successfully.");
+      const audioUrl = await retrieveAudio(audioPath);
+
+      const response = await fetch(audioUrl); 
+      const audioBlob = await response.blob(); 
+
+      const formData = new FormData(); 
+      formData.append('storyId',storyId)
+      formData.append('userId',userId); 
+      formData.append('voiceId',selectedVoiceId); 
+      formData.append('audioFile', audioBlob,'story-audio.wav'); 
+
+      const uploadResponse = await axios.post(
+        `http://localhost:8000/api/stories/${storyId}/upload-audio`,
+        formData, 
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+      if (uploadResponse.status === 200) {
+        message.success("Story generated and saved successfully.");
+        setWishlist(prevWishlist =>
+          prevWishlist.map(story =>
+            story._id === storyId
+              ? { ...story, isGenerated: true }
+              : story
+          )
+        );
+        // Cập nhật trạng thái hoặc thêm vào danh sách
+      } else {
+        message.error("Failed to save the generated story.");
+      }
+
     } catch (error) {
       console.error("Error in voice cloning process:", error);
       message.error("Failed to generate story.");
     }
   };
 
-  const addToPlaylist = (storyId) => {
-
+  const addToPlaylist = async (storyId) => {
+    try {
+      await axios.post(`http://localhost:8000/api/playlist/add`, {
+        userId,
+        storyId,
+      });
+      message.success("Story added to playlist.");
+    } catch (error) {
+      console.error("Error adding to playlist:", error);
+      message.error("Failed to add to playlist.");
+    }
   };
 
   const wishlistColumns = [
@@ -167,7 +199,7 @@ const WishlistPage = () => {
       dataIndex: "title",
       key: "title",
     },
-
+  
     {
       title: "Voice",
       key: "voice",
@@ -178,7 +210,6 @@ const WishlistPage = () => {
           value={voiceSelections[record._id]}
         >
           {voices.map((voice) => (
-            // Ensure this uses the correct property for voiceId from your data
             <Option key={voice._id} value={voice.voiceId || voice._id}>
               {voice.title}
             </Option>
@@ -190,91 +221,39 @@ const WishlistPage = () => {
     {
       title: "Actions",
       key: "actions",
-      render: (text, record) => (
-        <>
-          <Button
-            type="primary"
-            icon={<span role="img" aria-label="Generate"></span>}
-            style={{ marginRight: 16 }}
-            onClick={() => generateStory(record._id, record.description)}
-          >
-            Generate
-          </Button>
-          <Button
-            type="danger"
-            icon={<span role="img" aria-label="Remove from Wishlist"></span>}
-            onClick={() => removeFromWishlist(record._id)}
-          >
-            Remove from Wishlist
-          </Button>
-          {selectedStoryId === record._id && (
+      render: (text, record) => {
+        const hasGeneratedWithSelectedVoice = record.generatedByUserId === userId && voiceSelections[record._id] === record.generatedVoice;
+        
+        return (
+          <>
+            {!hasGeneratedWithSelectedVoice && (
+              <Button
+                type="primary"
+                style={{ marginRight: 16 }}
+                onClick={() => generateStory(record._id, record.description)}
+                disabled={!voiceSelections[record._id]}
+              >
+                Generate
+              </Button>
+            )}
+            {hasGeneratedWithSelectedVoice && (
+              <Button
+                type="primary"
+                onClick={() => addToPlaylist(record._id)}
+              >
+                Add to Playlist
+              </Button>
+            )}
             <Button
-              type="primary"
-              icon={
-                <span role="img" aria-label="Move to Generated">
-                  ➡️
-                </span>
-              }
+              type="danger"
               style={{ marginLeft: 16 }}
-              onClick={() => {
-                const selectedStory = wishlist.find(
-                  (story) => story._id === selectedStoryId
-                );
-                if (selectedStory) {
-                  setGeneratedStories((prevGeneratedStories) => [
-                    ...prevGeneratedStories,
-                    selectedStory,
-                  ]);
-                  setSelectedStoryId(null);
-                }
-              }}
+              onClick={() => removeFromWishlist(record._id)}
             >
-              Move to Generated
+              Remove from Wishlist
             </Button>
-          )}
-        </>
-      ),
-    },
-  ];
-
-
-
-  const generatedColumns = [
-    {
-      title: "Image",
-      dataIndex: "imageUrl",
-      key: "imageUrl",
-      render: (imageUrl) =>
-        imageUrl ? (
-          <img src={imageUrl} alt="Story" style={{ maxWidth: "50px" }} />
-        ) : (
-          "No image"
-        ),
-    },
-    {
-      title: "Title",
-      dataIndex: "title",
-      key: "title",
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (text, record) => (
-        <>
-          <Button
-            type="primary"
-            icon={
-              <span role="img" aria-label="Add to Playlist">
-                ➕
-              </span>
-            }
-            style={{ marginRight: 16 }}
-            onClick={() => addToPlaylist(record._id)}
-          >
-            Add to Playlist
-          </Button>
-        </>
-      ),
+          </>
+        );
+      },
     },
   ];
 
@@ -283,14 +262,6 @@ const WishlistPage = () => {
       <div style={{ margin: "100px 200px 0px 300px" }}>
         <h2>My Wishlist</h2>
         <Table columns={wishlistColumns} dataSource={wishlist} rowKey="_id" />
-      </div>
-      <div style={{ margin: "0px 200px 100px 300px" }}>
-        <h2>Generated Stories</h2>
-        <Table
-          columns={generatedColumns}
-          dataSource={generatedStories}
-          rowKey="_id"
-        />
       </div>
     </div>
   );

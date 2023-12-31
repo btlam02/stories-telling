@@ -1,33 +1,56 @@
-import React from "react";
-import { Table, Button } from "antd";
-import {PlayCircleFilled} from '@ant-design/icons'
+import React, { useState, useEffect } from "react";
+import { Table, Button, Modal } from "antd";
+import { PlayCircleFilled } from "@ant-design/icons";
+import axios from "axios";
 
 const PlaylistPage = () => {
-  // Cập nhật dữ liệu giả lập để bao gồm tất cả thông tin cần thiết
-  const playlistData = [
-    {
-      key: "1",
-      title: "Rich Dad Poor Dad",
-      voice: "Dad_01",
-      // Bạn cần thêm URL hoặc đường dẫn tới file audio ở đây
-      audioUrl: "http://example.com/audio/dad_01.mp3",
-    },
-    // Thêm các bản ghi khác tương tự như trên
-  ];
+  const [playlistData, setPlaylistData] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentAudioUrl, setCurrentAudioUrl] = useState("");
 
-  // Định nghĩa cột cho bảng
+  const userId = localStorage.getItem("id");
+
+  useEffect(() => {
+    const fetchPlaylistData = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/api/playlist/${userId}`
+        );
+        // Assuming response.data.stories is the array of story objects
+        const stories = response.data.stories || [];
+        const formattedData = stories
+          .map((story) => {
+            // Find the userVoice for the current user
+            const userVoice = story.userVoices.find(
+              (voice) => voice.userId === userId
+            );
+            return {
+              key: story._id,
+              title: story.title,
+              voice: userVoice ? userVoice.narrator : "N/A", // Fallback to 'N/A' if not found
+              audioUrl: userVoice ? `http://localhost:8000/${userVoice.audioUrl}` : "", // Fallback to empty string if not found
+
+            };
+          })
+          .filter((item) => item.audioUrl); // Filter out any items without an audio URL
+        setPlaylistData(formattedData);
+      } catch (error) {
+        console.error("Error fetching playlist data:", error);
+      }
+    };
+
+    fetchPlaylistData();
+  }, [userId]);
+
+
+
+
+  
   const columns = [
     {
       title: "Title",
       dataIndex: "title",
       key: "title",
-      // Render a custom cell that includes the title and additional details like author and year
-      render: (text, record) => (
-        <div>
-          <div>{record.title}</div>
-          <div>{`Robert T.Kiyosaki, 1997`}</div>
-        </div>
-      ),
     },
     {
       title: "Voice",
@@ -35,34 +58,41 @@ const PlaylistPage = () => {
       key: "voice",
     },
     {
-      title: "Duration",
-      dataIndex: "duration",
-      key: "duration",
-      render: (text) => <div>{text}</div>,
-    },
-    {
       title: "Action",
       key: "action",
-      render: (text, record) => (
-        <Button
-          onClick={() => playAudio(record.audioUrl)}
-        ><PlayCircleFilled/></Button>
+      render: (_, record) => (
+        <Button onClick={() => playAudio(record.audioUrl)}>
+          <PlayCircleFilled />
+        </Button>
       ),
     },
   ];
 
-  // Hàm để phát audio
   const playAudio = (audioUrl) => {
-    const audio = new Audio(audioUrl);
-    audio.play().catch((error) => {
-      console.error("Error playing audio:", error);
-    });
+    console.log(`Trying to play audio from URL: ${audioUrl}`); // Debugging line
+    setCurrentAudioUrl(audioUrl);
+    setIsModalVisible(true);
   };
+  
+  
 
   return (
-    <div style={{margin: '0px 100px 0px 100px'}}>
+    <div style={{ margin: "0px 100px" }}>
       <h1>Playlist</h1>
       <Table dataSource={playlistData} columns={columns} />
+
+      <Modal
+      title="Audio Player"
+      visible={isModalVisible}
+      onOk={() => setIsModalVisible(false)}
+      onCancel={() => setIsModalVisible(false)}
+      footer={null}
+    >
+      <audio controls autoPlay>
+        <source src={currentAudioUrl} type="audio/mpeg" />
+        Your browser does not support the audio element.
+      </audio>
+    </Modal>
     </div>
   );
 };

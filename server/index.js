@@ -11,7 +11,7 @@ const Voice = require('./routes/voice');
 const Genre = require('./routes/genre');
 const Stories = require('./routes/stories'); 
 const Wishlist = require('./routes/wishlist'); 
-
+const Playlist = require('./routes/playlist')
 const app = express(); 
 
 require('dotenv').config();
@@ -34,7 +34,7 @@ app.use('/api', Voice);
 app.use('/api', Genre); 
 app.use('/api', Stories); 
 app.use('/api', Wishlist); 
-
+app.use('/api', Playlist)
 
 app.listen(port,()=>{
     console.log('Server is running on port',port)

@@ -25,7 +25,6 @@ const voiceSchema = new mongoose.Schema({
 });
 
 
-
 const storySchema = new mongoose.Schema({
   title: String,
   author: String,
@@ -40,16 +39,22 @@ const storySchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: false, 
-  },
+  }, 
   isGenerated: {
     type: Boolean,
     default: false, 
+  },
+  generatedVoice: {
+    type: String,   
+  },
+  generatedByUserId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
   
   defaultVoice:[voiceSchema],
   userVoices: [voiceSchema],
 });
-
 
 
 const Story = mongoose.model("Story", storySchema);
