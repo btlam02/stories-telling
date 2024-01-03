@@ -1,5 +1,5 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
-import { Button, Input, Space } from "antd";
+import { Button, Input, Space, Progress, message } from "antd";
 import { RightOutlined, LeftOutlined, AudioOutlined } from "@ant-design/icons";
 import { UserContext } from "../../context/UserContext";
 import axios from "axios";
@@ -59,6 +59,8 @@ const AudioRecorder = () => {
   const animationFrameRef = useRef(null);
   const canvasRef = useRef(null);
   const canvasCtxRef = useRef(null);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     getMicrophonePermission();
@@ -182,12 +184,20 @@ const AudioRecorder = () => {
 
   const validateAndTrainVoice = async (voiceFile) => {
     try {
-      console.log(voiceFile);
+      setStatusMessage('Validating voice...');
+      setProgress(25); // Assuming validation is about 25% of the process
       await validateVoice(voiceFile, voiceId);
-      const trainingResponse = await trainVoiceModel(voiceId);
-      return trainingResponse.train_status;
+
+      setStatusMessage('Training voice model...');
+      setProgress(50); // Assuming training starts at 50%
+      await trainVoiceModel(voiceId);
+
+      setProgress(100);
+      setStatusMessage('Voice model trained successfully!');
+      
     } catch (error) {
-      console.error("Error in voice processing:", error);
+      setStatusMessage('Error in voice processing: ' + error.message);
+      setProgress(0);
       throw error;
     }
   };
@@ -327,6 +337,7 @@ const AudioRecorder = () => {
       } else {
         console.error("Voice processing failed");
       }
+      message.success('Recordings saved successfully!');
     } catch (error) {
       console.error("Error uploading recordings: ", error);
     }
@@ -349,6 +360,10 @@ const AudioRecorder = () => {
         <h3>
           Recording progress: {currentSentenceIndex + 1}/{sentences.length}
         </h3>
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <Progress percent={progress} status="active" />
+          <p>{statusMessage}</p>
+        </Space>
         <p>{sentences[currentSentenceIndex]}</p>
         <Waveform ref={canvasRef} />
         <Controls>

@@ -25,7 +25,7 @@ const AppRoutes = () => {
         <Route path="/user/dashboard" element={<UserRoutes><UserPage /></UserRoutes>} />
         <Route path="/user/wishlist" element={<UserRoutes><WishlistPage/></UserRoutes>} />
         <Route path ="/user/playlist" element={<PlaylistPage/>}/>  
-        <Route path="/play" element={<PlayStories />} />
+        <Route path="/play/:storyId" element={<PlayStories />} />
       </Routes>
     </>
   );

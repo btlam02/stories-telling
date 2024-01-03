@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import StoriesCard from "../../components/Card/Card";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { Pagination, Search ,message} from 'antd';
 import styles from './StoriesPage.module.css';
-
-
-
 
 
 const API_URL = "http://localhost:8000/api";
@@ -18,6 +16,8 @@ const StoriesPage = () => {
   const [selectedGenre, setSelectedGenre] = useState('');
   const [stories, setStories] = useState([]);
   const [genres, setGenres] = useState([]);
+
+  let navigate = useNavigate();
 
   useEffect(() => {
     const fetchStories = async () => {
@@ -41,6 +41,12 @@ const StoriesPage = () => {
     fetchStories();
     fetchGenres();
   }, []);
+
+
+  const handlePlayStory = (storyId) => {
+    // Navigate to the play story page with the story ID
+    navigate(`/play/${storyId}`);
+  };
 
 
   const handleAddToWishlist = async (storyId) => {
@@ -97,6 +103,7 @@ const StoriesPage = () => {
               story={story}
               imageUrl={story.imageUrl}
               onAddToWishlist={handleAddToWishlist}
+              onPlay={() => handlePlayStory(story._id)}
             />
           </div>
         ))}

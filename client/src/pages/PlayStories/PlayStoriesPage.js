@@ -1,55 +1,51 @@
-import {useState, useEffect} from 'react';
-import Player from '../../components/Player/Player';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import './PlayStories.css'; // Make sure to create a CSS file with your styles
+
+const API_URL = "http://localhost:8000";
 
 function PlayStories() {
-  const [songs] = useState([
-    {
-      title: "Forget me too ft. Halsey",
-      artist: "Machine Gun Kelly",
-      img_src: "./images/song-1.jpg",
-      src: "./music/on-n-on.mp3"
-    },
-    {
-      title: "Song 2",
-      artist: "Artist 2",
-      img_src: "./images/song-2.jpg",
-      src: "./music/somebody-new.mp3"
-    },
-    {
-      title: "Song 3",
-      artist: "Artist 3",
-      img_src: "./images/song-3.jpg",
-      src: "./music/on-n-on.mp3"
-    },
-    {
-      title: "Song 4",
-      artist: "Artist 4",
-      img_src: "./images/song-4.jpg",
-      src: "./music/somebody-new.mp3"
-    }
-  ]);
-
-  const [currentSongIndex, setCurrentSongIndex] = useState(0);
-  const [nextSongIndex, setNextSongIndex] = useState(0);
+  const { storyId } = useParams();
+  const navigate = useNavigate();
+  const [story, setStory] = useState(null);
 
   useEffect(() => {
-    setNextSongIndex(() => {
-      if (currentSongIndex + 1 > songs.length - 1) {
-        return 0;
-      } else {
-        return currentSongIndex + 1;
+    const fetchStory = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/get-stories/${storyId}`);
+        setStory(response.data);
+      } catch (error) {
+        console.error('Error fetching story:', error);
       }
-    });
-  }, [currentSongIndex]);
+    };
+
+    fetchStory();
+  }, [storyId]);
+
+  const handleBackClick = () => {
+    navigate(-1); 
+  };
 
   return (
-    <div className="App">
-      <Player 
-        currentSongIndex={currentSongIndex} 
-        setCurrentSongIndex={setCurrentSongIndex} 
-        nextSongIndex={nextSongIndex} 
-        songs={songs}
-      />
+    <div className="play-stories">
+      <button className="back-button" onClick={handleBackClick}>Back</button>
+      {story && (
+        <>
+          <div className="story-details">
+            <img className="story-cover" src={`${API_URL}/${story.imageUrl}`} alt={story.title} />
+            <h1 className="story-title">{story.title}</h1>
+            <h2 className="story-author">{story.author}</h2>
+            <p className="story-year">{story.year}</p>
+          </div>
+          <div className="audio-player-container">
+            <audio controls autoPlay className="audio-player">
+              <source src={`${API_URL}/${story.generatedVoice}`} type="audio/wav" />
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -92,6 +92,84 @@ const ManageStories = () => {
     }
   };
 
+
+  //API Generated:  
+  const generateAudio = async (sessionId, text) => {
+    const response = await axios.post(
+      "https://research.vinbase.ai/voiceclone/infer",
+      {
+        session: sessionId,
+        text: text,
+        pitch: 1,
+        speed: 1.0,
+        lang: "vi",
+      },
+      {
+        headers: {
+          Authorization: "Basic c3BlZWNoX29vdjo0RDYkJiU5cWVFaHZSVGVS",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data.infer_status) {
+      return response.data.full_audio;
+    } else {
+      throw new Error("Audio generation failed");
+    }
+    
+  };
+
+  const retrieveAudio = async (audioPath) => {
+    const response = await axios.get(
+      `https://research.vinbase.ai/voiceclone/getaudio?filename=${audioPath}`,
+      {
+        headers: {
+          Authorization: "Basic c3BlZWNoX29vdjo0RDYkJiU5cWVFaHZSVGVS",
+        },
+        responseType: "blob",
+      }
+    );
+
+    return URL.createObjectURL(response.data);
+  };
+
+
+
+  const generateAndSaveStory = async (storyId, description) => {
+    try {
+      // Thay đổi 'voiceId' và 'sessionId' theo nhu cầu
+      const sessionId = "1234";
+  
+      const audioPath = await generateAudio(sessionId, description);
+      const audioUrl = await retrieveAudio(audioPath);
+  
+      const response = await fetch(audioUrl); 
+      const audioBlob = await response.blob(); 
+  
+      const formData = new FormData(); 
+      formData.append('audioFile', audioBlob, `${storyId}.wav`);
+  
+      const uploadResponse = await axios.post(
+        `${API_URL}/api/stories/${storyId}/upload-default`, // Đường dẫn API có thể khác
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+  
+      if (uploadResponse.status === 200) {
+        message.success("Story audio generated and saved successfully.");
+        fetchStories(); // Cập nhật danh sách câu chuyện
+      } else {
+        message.error("Failed to save the generated story audio.");
+      }
+    } catch (error) {
+      console.error("Error in generating story audio:", error);
+      message.error("Failed to generate story audio.");
+    }
+  };
+  
+
+
   const handleAddOrUpdateStory = async () => {
     try {
       const values = await form.validateFields();
@@ -161,6 +239,14 @@ const ManageStories = () => {
         >
           {record.isActive ? "Deactivate" : "Activate"}
         </Button>
+        <Button
+        onClick={() => generateAndSaveStory(record._id, record.description)}
+        style={{ marginLeft: 8 }}
+      >
+        Generate Story
+      </Button>
+
+
       </>
     );
   };

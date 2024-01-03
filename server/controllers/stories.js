@@ -6,7 +6,9 @@ const addStory = async (req, res) => {
   try {
     const storyData = {
       ...req.body,
-      imageUrl: req.file ? req.file.path : undefined, // Lấy đường dẫn ảnh
+      imageUrl: req.file ? req.file.path : undefined, 
+      generatedVoice: req.body.generatedVoice,
+
     };
     let story = new Story(storyData);
     story = await story.save();
@@ -136,6 +138,32 @@ const uploadUserAudio = async (req, res) => {
 };
 
 
+const uploadDefaultAudio = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send('No audio file uploaded');
+    }
+    const audioUrl = req.file.path;
+    const storyId = req.params.storyId; 
+
+    // Tìm câu chuyện dựa trên storyId
+    const story = await Story.findByIdAndUpdate(storyId);
+    if (!story) {
+      return res.status(404).send('Story not found');
+    }
+
+    story.generatedVoice = audioUrl;
+    story.isGenerated = true;
+    await story.save();
+
+    res.status(200).send({ message: 'Audio uploaded and story updated', audioUrl });
+  } catch (error) {
+    console.error('Error uploading default audio:', error);
+    res.status(500).send('Internal server error');
+  }
+};
+
+
 
 module.exports = {
   addStory,
@@ -145,6 +173,7 @@ module.exports = {
   deleteStory,
   activeStory,
   uploadUserAudio,
+  uploadDefaultAudio,
 };
 
 

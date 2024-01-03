@@ -29,6 +29,7 @@ const storySchema = new mongoose.Schema({
   title: String,
   author: String,
   description: String,
+  storyId: String, 
   genre: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Genre",
@@ -51,10 +52,10 @@ const storySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  
   defaultVoice:[voiceSchema],
   userVoices: [voiceSchema],
 });
+
 
 
 const Story = mongoose.model("Story", storySchema);

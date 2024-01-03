@@ -100,6 +100,7 @@ const WishlistPage = () => {
     } else {
       throw new Error("Audio generation failed");
     }
+
   };
 
   const retrieveAudio = async (audioPath) => {
@@ -157,6 +158,7 @@ const WishlistPage = () => {
               : story
           )
         );
+        
         // Cập nhật trạng thái hoặc thêm vào danh sách
       } else {
         message.error("Failed to save the generated story.");
