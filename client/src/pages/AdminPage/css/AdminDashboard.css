@@ -5,12 +5,14 @@
     padding: 20px;
   }
   
+  
   /* Sidebar links card */
   .card {
     border: 1px solid #ddd;
     border-radius: 4px;
   }
   
+
   .card-header {
     background-color: #f5f5f5;
     border-bottom: 1px solid #ddd;

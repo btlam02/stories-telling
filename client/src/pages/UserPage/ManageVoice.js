@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { Select, message, Button, Table, Modal } from "antd";
+import {DeleteOutlined } from '@ant-design/icons'
 import axios from "axios";
 
 const AudioList = () => {
   const [audios, setAudios] = useState([]);
   const [selectedAudio, setSelectedAudio] = useState(null);
   const userId = localStorage.getItem("id");
-
   useEffect(() => {
     const fetchAudios = async () => {
       try {
@@ -30,35 +31,62 @@ const AudioList = () => {
     setSelectedAudio(event.target.value);
   };
 
+  const deleteAudio = async (audioId) => {
+    Modal.confirm({
+      title: 'Are you sure you want to delete this audio?',
+      content: 'This action cannot be undone',
+      okText: 'Yes, delete it',
+      cancelText: 'No, keep it',
+      onOk: async () => {
+        try {
+          await axios.delete(`http://localhost:8000/api/audio/${audioId}`);
+          setAudios(audios.filter((audio) => audio._id !== audioId));
+          message.success("Audio deleted successfully");
+        } catch (error) {
+          console.error("Error deleting audio: ", error);
+          message.error("Failed to delete audio");
+        }
+      },
+    });
+  };
+  
+
+  const columns = [
+    {
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
+    },
+    {
+      title: "Play",
+      key: "play",
+      render: (_, record) =>
+        record.recordings?.map((recording, index) => (
+          <audio
+            key={index}
+            src={`http://localhost:8000/${recording.url}`}
+            controls
+          />
+        )),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Button type="danger" onClick={() => deleteAudio(record._id)}>
+          {<DeleteOutlined/>}
+        </Button>
+      ),
+    },
+  ];
+
   return (
     <div>
       <div>
-        <h2>List Voice</h2>
-        <select value={selectedAudio} onChange={handleAudioChange}>
-          {audios.map((audio) => (
-            <option key={audio._id} value={audio._id}>
-              {audio.title}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        {audios
-          .filter((audio) => audio._id === selectedAudio)
-          .map((audio) => (
-            <div key={audio._id}>
-              <h3>{audio.title}</h3>
-              <div>
-                {audio.recordings?.map((recording) => (
-                  <audio
-                    key={recording._id}
-                    src={`http://localhost:8000/${recording.url}`}
-                    controls
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
+        <div style={{margin:'Left'}}>
+          <h2 style={{textAlign:'Left'}}>Manage Voices</h2>
+          <Table columns={columns} dataSource={audios} rowKey="_id" />
+        </div>
       </div>
     </div>
   );

@@ -5,14 +5,15 @@ const Schema = mongoose.Schema;
 
 const playlistSchema = new mongoose.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     stories: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Story',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Story",
     }],
-});
+  });
+  
 
 const Playlist = mongoose.model('Playlist', playlistSchema);
 module.exports = Playlist

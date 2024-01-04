@@ -340,7 +340,7 @@ const AudioRecorder = () => {
       message.success('Recordings saved successfully!');
     } catch (error) {
       console.error("Error uploading recordings: ", error);
-    }
+    } 
   };
 
   const allRecorded = recordings.every((recording) => recording !== null);

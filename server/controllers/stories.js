@@ -124,11 +124,6 @@ const uploadUserAudio = async (req, res) => {
         status: 'completed',
     });
 
-    // Cập nhật trạng thái generated và thông tin về giọng nói được sử dụng
-    story.isGenerated = true;
-    story.generatedVoice = voiceId;
-    story.generatedByUserId = userId;
-    
     await story.save();
     res.status(200).send('Audio uploaded and story updated');
   } catch (error) {

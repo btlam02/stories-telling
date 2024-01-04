@@ -18,7 +18,24 @@ const getAllAudios = async (req, res) => {
     }
 };
 
-module.exports = {addNewAudio, getAllAudios}
+const deleteAudio = async (req, res) => {
+    try {
+        const voiceId= req.params.audioId;
+        const audio = await Audio.findByIdAndDelete(voiceId);
+
+        if (!audio) {
+            return res.status(404).send({ message: 'Audio not found' });
+        }
+
+        res.send({ message: 'Audio deleted successfully!' });
+    } catch (err) {
+        res.status(500).send({ message: 'Error deleting audio', error: err.message });
+    }
+};
+
+
+
+module.exports = {addNewAudio, getAllAudios, deleteAudio}
 
 
   
