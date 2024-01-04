@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Table, Button, message, Select, Progress, Tooltip, Modal , Input } from "antd";
+import {
+  Table,
+  Button,
+  message,
+  Select,
+  Progress,
+  Tooltip,
+  Modal,
+  Input,
+} from "antd";
 import {
   PlayCircleOutlined,
   DeleteOutlined,
   PlusCircleOutlined,
   LoadingOutlined,
-  PlayCircleFilled, 
+  PlayCircleFilled,
   SearchOutlined,
 } from "@ant-design/icons";
 const { Option } = Select;
@@ -22,9 +31,8 @@ const WishlistPage = () => {
   const [loading, setLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [voiceStatus, setVoiceStatus] = useState({});
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
   const [isSearchVisible, setIsSearchVisible] = useState(false);
-
 
   const handleVoiceChange = (voiceId, storyId) => {
     setVoiceSelections((prevSelections) => ({
@@ -52,25 +60,18 @@ const WishlistPage = () => {
     fetchVoices();
   }, [userId]);
 
-  const isStoryGeneratedWithVoice = (story, voiceId) => {
-    return story.userVoices.some(
-      (voice) => voice.voiceId === voiceId && voice.status === "completed"
-    );
-  };
   const toggleSearch = () => {
     setIsSearchVisible(!isSearchVisible);
   };
 
   const hideSearch = () => {
     setIsSearchVisible(false);
-    setSearchText('');
+    setSearchText("");
   };
-
 
   const handleSearch = (event) => {
     setSearchText(event.target.value);
   };
-  
 
   useEffect(() => {
     axios
@@ -99,19 +100,21 @@ const WishlistPage = () => {
     value: letter,
   }));
 
-  const filteredWishlist = wishlist.filter(story =>
+  const filteredWishlist = wishlist.filter((story) =>
     story.title.toLowerCase().includes(searchText.toLowerCase())
   );
-  
 
   const removeFromWishlist = (storyId) => {
     Modal.confirm({
-      title: 'Are you sure you want to remove this story from your wishlist?',
-      content: 'This action cannot be undone',
-      okText: 'Yes, remove it',
-      cancelText: 'No, keep it',
+      title: "Are you sure you want to remove this story from your wishlist?",
+      content: "This action cannot be undone",
+      okText: "Yes, remove it",
+      cancelText: "No, keep it",
       onOk: () => {
-        axios.delete(`http://localhost:8000/api/wishlist/${userId}/remove/${storyId}`)
+        axios
+          .delete(
+            `http://localhost:8000/api/wishlist/${userId}/remove/${storyId}`
+          )
           .then((response) => {
             if (response.status === 200) {
               message.success("Removed from wishlist.");
@@ -169,37 +172,36 @@ const WishlistPage = () => {
     return URL.createObjectURL(response.data);
   };
 
-  //
-  const generateStory = async (storyId, storyDescription, voiceId) => {
-    const selectedVoiceId = voiceSelections[storyId];
-    console.log("Selected voice ID: ", selectedVoiceId);
 
+  //
+  const generateStory = async (storyId, storyDescription) => {
+    const selectedVoiceId = voiceSelections[storyId];
+    const story = wishlist.find((s) => s._id === storyId);
+  
     if (!selectedVoiceId) {
       message.warning("Please select a voice to generate the story.");
       return;
     }
-
-    const story = wishlist.find((story) => story._id === storyId);
-    console.log("Selected story: ", story);
-
+  
     if (!story) {
       message.error("Story not found.");
       return;
     }
-
+  
+    // Kiểm tra xem GIỌNG ĐỌC CỤ THỂ đã được tạo cho câu chuyện này chưa
     const voiceGenerated = story.userVoices.some(
       (voice) =>
-        voice.userId.toString() === selectedVoiceId &&
-        voice.status === "completed"
+        voice.voiceId === selectedVoiceId &&
+        voice.status === "completed" // Bỏ điều kiện kiểm tra userId ở đây
     );
-
-    console.log("Is voice generated: ", voiceGenerated);
-
+  
     if (voiceGenerated) {
-      message.info("Story has already been generated with this voice.");
+      message.info("This story has already been generated with the selected voice.");
       return;
     }
 
+
+    // Tiếp tục thực hiện generate story nếu giọng chưa được generated
     try {
       setLoading(true);
       setLoadingProgress(30);
@@ -232,21 +234,27 @@ const WishlistPage = () => {
       if (uploadResponse.status === 200) {
         message.success("Story generated and saved successfully.");
 
-        // Cập nhật trạng thái generated cho voice trong state
         setWishlist((prevWishlist) =>
-          prevWishlist.map((story) => {
-            if (story._id === storyId) {
-              // Cập nhật danh sách userVoices với trạng thái mới cho voice đã chọn
-              const newUserVoices = story.userVoices.map((voice) =>
+          prevWishlist.map((storyItem) => {
+            if (storyItem._id === storyId) {
+              // Cập nhật trạng thái của giọng đọc cụ thể
+              const newUserVoices = storyItem.userVoices.map((voice) =>
                 voice.voiceId === selectedVoiceId
                   ? { ...voice, status: "completed" }
                   : voice
               );
-              return { ...story, userVoices: newUserVoices };
+              return { ...storyItem, userVoices: newUserVoices };
             }
-            return story;
+            return storyItem;
           })
         );
+        const newVoice = {
+          ...uploadResponse.data.newVoice, 
+          status: "completed", 
+          voiceId: selectedVoiceId, 
+          userId: userId 
+        };
+        updateVoiceStatus(storyId, newVoice);
       } else {
         message.error("Failed to save the generated story.");
       }
@@ -258,6 +266,34 @@ const WishlistPage = () => {
       setLoadingProgress(0);
     }
   };
+
+
+  // Ví dụ về cập nhật trạng thái sau khi tạo giọng đọc thành công:
+// Giả sử bạn đã nhận được phản hồi từ server với thông tin giọng đọc mới đã tạo.
+
+const updateVoiceStatus = (storyId, newVoice) => {
+  setWishlist(currentWishlist =>
+    currentWishlist.map(story => {
+      if (story._id === storyId) {
+        // Kiểm tra nếu voice đã tồn tại trong userVoices
+        const voiceIndex = story.userVoices.findIndex(v => v.voiceId === newVoice.voiceId);
+        if (voiceIndex > -1) {
+          // Cập nhật voice hiện tại
+          const updatedVoices = [...story.userVoices];
+          updatedVoices[voiceIndex] = { ...updatedVoices[voiceIndex], ...newVoice };
+          return { ...story, userVoices: updatedVoices };
+        } else {
+          // Thêm voice mới
+          return { ...story, userVoices: [...story.userVoices, newVoice] };
+        }
+      }
+      return story;
+    })
+  );
+  // Cập nhật các state khác nếu cần
+  // ...
+};
+
 
   const addToPlaylist = async (storyId) => {
     try {
@@ -294,12 +330,16 @@ const WishlistPage = () => {
           autoFocus
         />
       ) : (
-        <Button icon={<SearchOutlined />} onClick={() => setIsSearchVisible(true)} />
+        <Button
+          icon={<SearchOutlined />}
+          onClick={() => setIsSearchVisible(true)}
+        />
       ),
       dataIndex: "title",
       key: "title",
       // Lọc dữ liệu dựa trên searchText
-      onFilter: (value, record) => record.title.toLowerCase().includes(searchText.toLowerCase()),
+      onFilter: (value, record) =>
+        record.title.toLowerCase().includes(searchText.toLowerCase()),
       sorter: (a, b) => a.title.localeCompare(b.title),
     },
 
@@ -320,20 +360,19 @@ const WishlistPage = () => {
         </Select>
       ),
     },
-
     {
       title: "Actions",
       key: "actions",
       render: (text, record) => {
-        // Khi chọn giọng đọc từ dropdown, chúng ta sẽ lưu userId tương ứng với giọng đọc đó
         const userId = localStorage.getItem("id");
         const selectedVoiceId = voiceSelections[record._id];
+    
+        // Kiểm tra xem câu chuyện này đã được generated với giọng đọc đã chọn chưa
         const voiceGenerated = record.userVoices.some(
-          (voice) => voice.userId === userId && voice.status === "completed"
+          (voice) => voice.voiceId === selectedVoiceId && voice.status === "completed"
         );
         const isGenerating = loading && selectedStoryId === record._id;
-
-        // Cập nhật UI dựa trên trạng thái của giọng đọc đã chọn
+    
         return (
           <>
             {!selectedVoiceId && (
@@ -341,18 +380,18 @@ const WishlistPage = () => {
                 <Button icon={<PlayCircleOutlined />} disabled />
               </Tooltip>
             )}
-
+    
             {selectedVoiceId && !voiceGenerated && (
               <Tooltip title="Generate Story">
                 <Button
-                  icon= {<PlayCircleFilled />}
+                  icon={<PlayCircleFilled />}
                   loading={isGenerating}
                   onClick={() => generateStory(record._id, record.description)}
                   disabled={isGenerating}
                 />
               </Tooltip>
             )}
-
+    
             {selectedVoiceId && voiceGenerated && (
               <Tooltip title="Add to Playlist">
                 <Button
@@ -362,25 +401,32 @@ const WishlistPage = () => {
                 />
               </Tooltip>
             )}
-
+    
             <Tooltip title="Remove from Wishlist">
               <Button
                 onClick={() => removeFromWishlist(record._id)}
                 disabled={isGenerating}
-                style={{ marginLeft: 5}}
-              >{<DeleteOutlined />}</Button>
+                style={{ marginLeft: 5 }}
+              >
+                {<DeleteOutlined />}
+              </Button>
             </Tooltip>
           </>
         );
       },
-    },
+    }
+    
   ];
 
   return (
     <div style={{ textAlign: "left" }}>
       <div style={{ margin: "50px 100px 0px 105px" }}>
         <h2>My Wishlist</h2>
-        <Table columns={wishlistColumns} dataSource={filteredWishlist} rowKey="_id" />
+        <Table
+          columns={wishlistColumns}
+          dataSource={filteredWishlist}
+          rowKey="_id"
+        />
       </div>
     </div>
   );

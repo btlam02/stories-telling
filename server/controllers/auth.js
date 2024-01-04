@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const validator = require('validator')
 
-
 require('dotenv').config();
 
 exports.signup = async (req, res) => {

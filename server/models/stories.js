@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const voiceSchema = new mongoose.Schema({
   narrator: String, 
   audioUrl: String,
+  voiceId: String, 
   status: {
     type: String,
     enum: ['pending', 'processing', 'completed', 'failed'],
@@ -22,6 +23,7 @@ const voiceSchema = new mongoose.Schema({
       return !this.isDefault;
     },
   },
+
 });
 
 

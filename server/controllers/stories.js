@@ -1,6 +1,6 @@
 // storyController.js
 const Story = require("../models/stories");
-const { exec } = require('child_process'); // Cập nhật đường dẫn nếu cần
+
 
 const addStory = async (req, res) => {
   try {
@@ -118,11 +118,11 @@ const uploadUserAudio = async (req, res) => {
 
     // Thêm giọng nói vào danh sách userVoices
     story.userVoices.push({
-        userId,
-        voiceId,
-        audioUrl,
-        status: 'completed',
-    });
+      userId,
+      voiceId,
+      audioUrl,
+      status: 'completed',
+  });
 
     await story.save();
     res.status(200).send('Audio uploaded and story updated');
@@ -140,7 +140,7 @@ const uploadDefaultAudio = async (req, res) => {
     }
     const audioUrl = req.file.path;
     const storyId = req.params.storyId; 
-
+   
     // Tìm câu chuyện dựa trên storyId
     const story = await Story.findByIdAndUpdate(storyId);
     if (!story) {

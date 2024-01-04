@@ -116,7 +116,7 @@ const PlaylistPage = () => {
 
   return (
     <div style={{ margin: "0px 100px" }}>
-      <h1>Playlist</h1>
+      <h2 style={{ textAlign: "Left" }}>My Playlist</h2>
       <Table dataSource={playlistData} columns={columns} />
 
       <Modal
