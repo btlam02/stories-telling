@@ -453,26 +453,15 @@ const WishlistPage = () => {
               voice.voiceId === voiceSelections[record._id] &&
               voice.status === "completed"
           );
-
         const isGenerating = loading && selectedStoryId === record._id;
 
         return (
           <>
-            {!selectedVoiceId && (
+            {!selectedVoiceId && !isDefaultVoiceSelected &&(
               <Tooltip title="Select a voice first">
                 <Button icon={<PlayCircleOutlined />} disabled />
               </Tooltip>
             )}
-            {/* Default */}
-            {/* {isDefaultVoiceSelected && (
-              <Tooltip title="Add to Playlist">
-                <Button
-                  icon={<PlusCircleOutlined />}
-                  onClick={() => handleAddToPlaylist(record)}
-                />
-              </Tooltip>
-            )} */}
-
             {selectedVoiceId && !voiceGenerated && !isDefaultVoiceSelected && (
               <Tooltip title="Generate Story">
                 <Button

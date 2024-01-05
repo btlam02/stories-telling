@@ -85,11 +85,11 @@ const UserPage = () => {
               icon: <UserOutlined />,
               label: "Account",
             },
-            {
-              key: "2",
-              icon: <VideoCameraOutlined />,
-              label: "Voice",
-            },
+            // {
+            //   key: "2",
+            //   icon: <VideoCameraOutlined />,
+            //   label: "Voice",
+            // },
             {
               key: "3",
               icon: <UploadOutlined />,

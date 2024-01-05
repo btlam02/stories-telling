@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Select, message, Button, Table, Modal } from "antd";
-import {DeleteOutlined } from '@ant-design/icons'
+import { DeleteOutlined, PlusSquareOutlined } from "@ant-design/icons";
+import { useNavigate } from 'react-router-dom';
+
+import AudioRecorder from "./Voice";
 import axios from "axios";
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -9,12 +12,12 @@ const AudioList = () => {
   const [audios, setAudios] = useState([]);
   const [selectedAudio, setSelectedAudio] = useState(null);
   const userId = localStorage.getItem("id");
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchAudios = async () => {
       try {
-        const response = await axios.get(
-          `${API_URL}/api/audio/list/${userId}`
-        );
+        const response = await axios.get(`${API_URL}/api/audio/list/${userId}`);
         setAudios(response.data);
         if (response.data.length > 0) {
           setSelectedAudio(response.data[0]._id); // Automatically select the first audio
@@ -35,10 +38,10 @@ const AudioList = () => {
 
   const deleteAudio = async (audioId) => {
     Modal.confirm({
-      title: 'Are you sure you want to delete this audio?',
-      content: 'This action cannot be undone',
-      okText: 'Yes, delete it',
-      cancelText: 'No, keep it',
+      title: "Are you sure you want to delete this audio?",
+      content: "This action cannot be undone",
+      okText: "Yes, delete it",
+      cancelText: "No, keep it",
       onOk: async () => {
         try {
           await axios.delete(`${API_URL}/api/audio/${audioId}`);
@@ -51,7 +54,6 @@ const AudioList = () => {
       },
     });
   };
-  
 
   const columns = [
     {
@@ -64,11 +66,7 @@ const AudioList = () => {
       key: "play",
       render: (_, record) =>
         record.recordings?.map((recording, index) => (
-          <audio
-            key={index}
-            src={`${API_URL}/${recording.url}`}
-            controls
-          />
+          <audio key={index} src={`${API_URL}/${recording.url}`} controls />
         )),
     },
     {
@@ -76,7 +74,7 @@ const AudioList = () => {
       key: "actions",
       render: (_, record) => (
         <Button type="danger" onClick={() => deleteAudio(record._id)}>
-          {<DeleteOutlined/>}
+          {<DeleteOutlined />}
         </Button>
       ),
     },
@@ -85,8 +83,10 @@ const AudioList = () => {
   return (
     <div>
       <div>
-        <div style={{margin:'Left'}}>
-          <h2 style={{textAlign:'Left'}}>Manage Voices</h2>
+        <div style={{ textAlign: "Left" }}>
+          <h2 style={{ textAlign: "Left" }}>Manage Voices</h2>
+         <Button onClick={() => navigate('/user/record')}><PlusSquareOutlined/>Add New Voice</Button>
+          <h1></h1>
           <Table columns={columns} dataSource={audios} rowKey="_id" />
         </div>
       </div>

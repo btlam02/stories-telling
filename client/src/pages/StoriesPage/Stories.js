@@ -9,7 +9,7 @@ import styles from "./StoriesPage.module.css";
 const API_URL = process.env.REACT_APP_API_URL;
 
 const StoriesPage = () => {
-  const storiesPerPage = 8;
+  const storiesPerPage = 4;
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("");

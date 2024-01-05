@@ -5,6 +5,7 @@ import { UserContext } from "../../context/UserContext";
 import axios from "axios";
 import Swal from "sweetalert2";
 import styled from "styled-components";
+import { useNavigate } from 'react-router-dom';
 
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -64,6 +65,7 @@ const AudioRecorder = () => {
   const canvasCtxRef = useRef(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [progress, setProgress] = useState(0);
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     getMicrophonePermission();
@@ -95,7 +97,6 @@ const AudioRecorder = () => {
       alert("API MediaRecorder không được hỗ trợ trong trình duyệt của bạn.");
       return;
     }
-
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const audioContext = new (window.AudioContext ||
@@ -341,6 +342,22 @@ const AudioRecorder = () => {
         console.error("Voice processing failed");
       }
       message.success('Recordings saved successfully!');
+      Swal.fire({
+        title: 'Success!',
+        text: 'Your recordings have been saved and processed successfully.',
+        icon: 'success',
+        showCancelButton: true,
+        confirmButtonText: 'Record more',
+        cancelButtonText: 'Go to Manage Voice',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // User chose to record more, you can reset the state to start a new recording
+          window.location.reload();
+        } else {
+          // User chose to go to manage voice, navigate to that page
+          navigate('/user/dashboard?key=3');
+        }
+      });
     } catch (error) {
       console.error("Error uploading recordings: ", error);
     } 
@@ -394,6 +411,8 @@ const AudioRecorder = () => {
         >
           Save Recordings
         </Button>
+
+        
       </RecorderContainer>
     </>
   );
