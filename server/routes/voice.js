@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const multer = require("multer");
-const { addNewAudio, getAllAudios, deleteAudio } = require("../controllers/voice");
+const { addNewAudio, getAllAudios, deleteAudio,getVoicebyVoiceId } = require("../controllers/voice");
 require('dotenv').config();
 
 const REFRESH_TOKEN = process.env.REFRESH_TOKEN
@@ -76,6 +76,7 @@ router.post("/voice/generate-id", (req, res) => {
 });
 
 router.get("/audio/list/:userId", getAllAudios);
+router.get("/audio/:audioId",getVoicebyVoiceId); 
 router.delete("/audio/:audioId",deleteAudio); 
 
 

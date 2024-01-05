@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.post('/playlist/add', addToPlaylist);
 router.get('/playlist/:userId', getPlaylist);
-router.delete('/playlist/:userId/:storyId', removeFromPlaylist);
+router.delete('/playlist/:userId/remove/:storyId/:voiceId', removeFromPlaylist);
 
 
 

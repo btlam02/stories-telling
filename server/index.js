@@ -36,11 +36,9 @@ app.use('/api', Stories);
 app.use('/api', Wishlist); 
 app.use('/api', Playlist)
 
-app.get('/', function (req, res) {
-    res.send('hello world')
-  })
 
 
-app.listen(8000,()=>{
-    console.log('Server is running on port')
+
+app.listen(port,()=>{
+    console.log('Server is running on port',port)
 })

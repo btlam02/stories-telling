@@ -5,6 +5,9 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { UserContext } from "../../context/UserContext";
 
+
+const API_URL = process.env.REACT_APP_API_URL;
+
 const LoginPage = () => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
@@ -13,7 +16,7 @@ const LoginPage = () => {
   const handleSignIn = (event) => {
     event.preventDefault();
     axios
-      .post("http://localhost:8000/api/signin", {email,password})
+      .post(`${API_URL}/api/signin`, {email,password})
       .then((result) => {
         console.log(result);
         loginContext(result.data.user._id,email, result.data.token, result.data.user.role); 
