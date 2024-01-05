@@ -149,6 +149,7 @@ const ManageUsers = () => {
     >
       <PlusSquareOutlined />
     </Button>
+    <h2> </h2>
     <Table rowSelection={rowSelection} columns={columns} dataSource={users} />
     <Modal
       title={editingUser ? "Edit User" : "Create New User"}

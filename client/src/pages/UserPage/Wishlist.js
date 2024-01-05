@@ -36,27 +36,26 @@ const WishlistPage = () => {
   const [searchText, setSearchText] = useState("");
   const [isSearchVisible, setIsSearchVisible] = useState(false);
 
-  // const handleVoiceChange = (selectedVoice, storyId) => {
-  //   setVoiceSelections((prevSelections) => ({
-  //     ...prevSelections,
-  //     [storyId]: selectedVoice,
-  //   }));
-
-  //   // Nếu giọng đọc mặc định được chọn, thêm ngay vào playlist
-  //   // if (selectedVoice === "default") {
-  //   //   const story = wishlist.find((s) => s._id === storyId);
-  //   //   if (story && story.isGenerated && story.voiceGenerated) {
-  //   //     addToPlaylist(storyId, story.voiceGenerated); // Thêm vào playlist với giọng đọc mặc định
-  //   //   }
-  //   // }
-  // };
-
   const handleVoiceChange = (selectedVoice, storyId) => {
     setVoiceSelections((prevSelections) => ({
       ...prevSelections,
       [storyId]: selectedVoice,
     }));
+
+    if (selectedVoice === "default") {
+      const story = wishlist.find((s) => s._id === storyId);
+      if (story && story.isGenerated && story.voiceGenerated) {
+        addToPlaylist(storyId, story.voiceGenerated); // Thêm vào playlist với giọng đọc mặc định
+      }
+    }
   };
+
+  // const handleVoiceChange = (selectedVoice, storyId) => {
+  //   setVoiceSelections((prevSelections) => ({
+  //     ...prevSelections,
+  //     [storyId]: selectedVoice,
+  //   }));
+  // };
 
   useEffect(() => {
     // Fetch voices using the userId, this should return an array of voice objects
@@ -282,6 +281,15 @@ const WishlistPage = () => {
     }
   };
 
+  const getDefaultVoice = (record) => {
+    // Ensure that defaultVoice is an array before calling find
+    if (Array.isArray(record.defaultVoice)) {
+      return record.defaultVoice.find((voice) => voice.isDefault === true);
+    }
+    // If defaultVoice is not an array, return null or some default object
+    return null;
+  };
+
   // Ví dụ về cập nhật trạng thái sau khi tạo giọng đọc thành công:
   // Giả sử bạn đã nhận được phản hồi từ server với thông tin giọng đọc mới đã tạo.
 
@@ -313,22 +321,50 @@ const WishlistPage = () => {
     // ...
   };
 
-  const addToPlaylist = async (storyId, selectedVoiceId) => {
-    if (!selectedVoiceId) {
-      message.warning("Please select a voice before adding to the playlist.");
-      return;
-    }
-  
+  // const addToPlaylist = async (storyId, selectedVoiceId) => {
+  //   if (!selectedVoiceId) {
+  //     message.warning("Please select a voice before adding to the playlist.");
+  //     return;
+  //   }
+
+  //   try {
+  //     const response = await axios.post(`${API_URL}/api/playlist/add`, {
+  //       userId,
+  //       storyId,
+  //       voiceId: selectedVoiceId,
+  //     });
+
+  //     if (response.status === 200) {
+  //       message.success("Story added to playlist successfully.");
+  //       // Cập nhật UI ở đây nếu cần
+  //     } else {
+  //       message.error("Failed to add story to playlist.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error adding to playlist:", error);
+  //     message.error("Failed to add to playlist. " + error.message);
+  //   }
+  // };
+
+  const addToPlaylist = async (storyId, voiceSelection) => {
     try {
-      const response = await axios.post(`${API_URL}/api/playlist/add`, {
-        userId,
-        storyId,
-        voiceId: selectedVoiceId,
-      });
+      let response;
+      const requestData = {
+        userId: userId,
+        storyId: storyId,
+      };
+  
+      if (voiceSelection === "default") {
+        // Gọi API thêm giọng đọc mặc định
+        response = await axios.post(`${API_URL}/api/playlist/add-default-voice`, requestData);
+      } else {
+        // Gọi API thêm giọng đọc cụ thể
+        requestData.voiceId = voiceSelection;
+        response = await axios.post(`${API_URL}/api/playlist/add`, requestData);
+      }
   
       if (response.status === 200) {
         message.success("Story added to playlist successfully.");
-        // Cập nhật UI ở đây nếu cần
       } else {
         message.error("Failed to add story to playlist.");
       }
@@ -339,32 +375,7 @@ const WishlistPage = () => {
   };
   
 
-  const handleAddToPlaylist = async (storyId) => {
-    const selectedVoiceId = voiceSelections[storyId];
-
-    if (!selectedVoiceId) {
-      message.warning("Please select a voice before adding to the playlist.");
-      return;
-    }
-
-    try {
-      const response = await axios.post(`${API_URL}/api/playlist/add`, {
-        userId,
-        storyId,
-        voiceId: selectedVoiceId,
-      });
-
-      if (response.status === 200) {
-        message.success("Story added to playlist successfully.");
-        // Cập nhật UI ở đây nếu cần
-      } else {
-        message.error("Failed to add story to playlist.");
-      }
-    } catch (error) {
-      console.error("Error adding to playlist:", error);
-      message.error("Failed to add to playlist. " + error.message);
-    }
-  };
+  
 
   const wishlistColumns = [
     {
@@ -429,11 +440,19 @@ const WishlistPage = () => {
         const userId = localStorage.getItem("id");
         const selectedVoiceId = voiceSelections[record._id];
         const isDefaultVoiceSelected = selectedVoiceId === "default";
+        // const voiceGenerated =
+        //   record.userVoices.some(
+        //     (voice) =>
+        //       voice.voiceId === selectedVoiceId && voice.status === "completed"
+        //   ) || isDefaultVoiceSelected;
+
         const voiceGenerated =
+          isDefaultVoiceSelected ||
           record.userVoices.some(
             (voice) =>
-              voice.voiceId === selectedVoiceId && voice.status === "completed"
-          ) || isDefaultVoiceSelected;
+              voice.voiceId === voiceSelections[record._id] &&
+              voice.status === "completed"
+          );
 
         const isGenerating = loading && selectedStoryId === record._id;
 
@@ -444,6 +463,15 @@ const WishlistPage = () => {
                 <Button icon={<PlayCircleOutlined />} disabled />
               </Tooltip>
             )}
+            {/* Default */}
+            {/* {isDefaultVoiceSelected && (
+              <Tooltip title="Add to Playlist">
+                <Button
+                  icon={<PlusCircleOutlined />}
+                  onClick={() => handleAddToPlaylist(record)}
+                />
+              </Tooltip>
+            )} */}
 
             {selectedVoiceId && !voiceGenerated && !isDefaultVoiceSelected && (
               <Tooltip title="Generate Story">
@@ -478,10 +506,7 @@ const WishlistPage = () => {
                 disabled={isGenerating}
                 style={{ marginLeft: 8 }}
               />
-
-
             </Tooltip>
-
           </>
         );
       },

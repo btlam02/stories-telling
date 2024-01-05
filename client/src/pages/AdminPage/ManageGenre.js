@@ -94,11 +94,12 @@ const ManageGenres = () => {
   };
 
   return (
-    <div>
-      <h1 style= {{marginLeft: '0px'}} >Manage Genres</h1>
-      <Button onClick={handleAdd} style={{ marginBottom: 16 }}>
+    <div style={{textAlign:'Left'}}>
+      <h1 style= {{textAlign:'Left'}} >Manage Genres</h1>
+      <Button onClick={handleAdd} style={{ height: "50px", width: "50px", borderRadius: "8px" }}>
       <PlusSquareOutlined />
       </Button>
+      <h2> </h2>
       <Table columns={columns} dataSource={genres.map((genre) => ({ ...genre, key: genre._id }))} />
       <Modal
         title={editingGenre ? "Edit Genre" : "Add New Genre"}

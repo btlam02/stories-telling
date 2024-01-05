@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const playlistItemSchema = new mongoose.Schema({
   storyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Story' },
-  voiceId: { type: String } // voiceId như một chuỗi độc lập
+  voiceId: { type: String } ,// voiceId như một chuỗi độc lập
+  isDefaultVoiceAdded:{type: Boolean, default: false}, 
 });
 
 const playlistSchema = new mongoose.Schema({

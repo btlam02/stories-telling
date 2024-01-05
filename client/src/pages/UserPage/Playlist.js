@@ -18,41 +18,79 @@ const PlaylistPage = () => {
   const userId = localStorage.getItem("id");
 
   useEffect(() => {
+    // const fetchPlaylistData = async () => {
+    //   try {
+    //     const playlistResponse = await axios.get(`${API_URL}/api/playlist/${userId}`);
+    //     if (playlistResponse.data && Array.isArray(playlistResponse.data.playlist)) {
+    //       const playlistItems = playlistResponse.data.playlist;
+  
+    //       const storyFetchPromises = playlistItems.map(item =>
+    //         axios.get(`${API_URL}/api/get-stories/${item.storyId}`)
+    //       );
+  
+    //       const storyResponses = await Promise.all(storyFetchPromises);
+          
+    //       const allVoices = storyResponses.map((response, index) => {
+    //         const storyData = response.data;
+    //         const playlistItem = playlistItems[index];
+    //         const voice = storyData.userVoices.find(v => v.voiceId === playlistItem.voiceId);
+  
+    //         return voice ? {
+    //           key: `${playlistItem.storyId}__${playlistItem.voiceId}`,
+    //           title: storyData.title,
+    //           narrator: voice.narrator,
+    //           audioUrl: `${API_URL}/${voice.audioUrl}`,
+    //         } : null;
+    //       }).filter(v => v !== null);
+  
+    //       setPlaylistData(allVoices);
+    //     }
+    //   } catch (error) {
+    //     console.error("Error fetching playlist data:", error);
+    //   }
+    // };
     const fetchPlaylistData = async () => {
       try {
         const playlistResponse = await axios.get(`${API_URL}/api/playlist/${userId}`);
         if (playlistResponse.data && Array.isArray(playlistResponse.data.playlist)) {
           const playlistItems = playlistResponse.data.playlist;
-  
-          const storyFetchPromises = playlistItems.map(item =>
-            axios.get(`${API_URL}/api/get-stories/${item.storyId}`)
-          );
-  
-          const storyResponses = await Promise.all(storyFetchPromises);
-          
-          const allVoices = storyResponses.map((response, index) => {
-            const storyData = response.data;
-            const playlistItem = playlistItems[index];
-            const voice = storyData.userVoices.find(v => v.voiceId === playlistItem.voiceId);
-  
-            return voice ? {
-              key: `${playlistItem.storyId}__${playlistItem.voiceId}`,
-              title: storyData.title,
-              narrator: voice.narrator,
-              audioUrl: `${API_URL}/${voice.audioUrl}`,
-            } : null;
-          }).filter(v => v !== null);
-  
-          setPlaylistData(allVoices);
+      
+          const processedItems = playlistItems.map(async (item) => {
+            if (item.voiceId === "" || item.voiceTitle === "Default") {
+              // Xử lý cho giọng đọc mặc định
+              const storyResponse = await axios.get(`${API_URL}/api/get-stories/${item.storyId}`);
+              const storyData = storyResponse.data;
+              return {
+                key: `${item.storyId}__default`,
+                title: storyData.title,
+                narrator: "Default Voice",
+                audioUrl: storyData.generatedVoice ? `${API_URL}/${storyData.generatedVoice}` : "", // Sử dụng generatedVoice làm URL
+              };
+            } else {
+              // Xử lý cho giọng đọc cụ thể
+              const storyResponse = await axios.get(`${API_URL}/api/get-stories/${item.storyId}`);
+              const storyData = storyResponse.data;
+              const voice = storyData.userVoices.find(v => v.voiceId === item.voiceId);
+              return voice ? {
+                key: `${item.storyId}__${item.voiceId}`,
+                title: storyData.title,
+                narrator: voice.narrator,
+                audioUrl: `${API_URL}/${voice.audioUrl}`, // Đường dẫn âm thanh cụ thể
+              } : null;
+            }
+          });
+    
+          const allItems = await Promise.all(processedItems);
+          setPlaylistData(allItems.filter(v => v !== null));
         }
       } catch (error) {
         console.error("Error fetching playlist data:", error);
       }
     };
+    
   
     fetchPlaylistData();
   }, [userId]);
-  
   
 
   const VoiceColumn = ({ voiceId }) => {
@@ -82,32 +120,38 @@ const PlaylistPage = () => {
 
   const handleRemoveFromPlaylist = async (combinedKey) => {
     const [storyId, voiceId] = combinedKey.split("__");
-    // Confirm xóa voice từ playlist
+    
+    // Xác định xem đây có phải là giọng đọc mặc định không
+    const isDefaultVoice = voiceId === "default";
+  
     Modal.confirm({
-      title:
-        "Are you sure you want to remove this voice from the story in the playlist?",
+      title: "Are you sure you want to remove this item from the playlist?",
       content: "This action cannot be undone",
       okText: "Yes, remove it",
       cancelText: "No, keep it",
       onOk: async () => {
         try {
-          const response = await axios.delete(
-            `${API_URL}/api/playlist/${userId}/remove/${storyId}/${voiceId}`
-          );
-          if (response.status === 200) {
-            // Cập nhật state để loại bỏ chỉ voice cụ thể khỏi playlist
-            setPlaylistData((prevPlaylistData) =>
-              prevPlaylistData.filter((item) => item.key !== combinedKey)
-            );
+          let response;
+          if (isDefaultVoice) {
+            // Gửi request xoá cho giọng đọc mặc định
+            response = await axios.delete(`${API_URL}/api/playlist/${userId}/remove-default/${storyId}`);
           } else {
-            console.error("Failed to remove voice from playlist");
+            // Gửi request xoá thông thường
+            response = await axios.delete(`${API_URL}/api/playlist/${userId}/remove/${storyId}/${voiceId}`);
+          }
+  
+          if (response.status === 200) {
+            setPlaylistData((prevPlaylistData) => prevPlaylistData.filter((item) => item.key !== combinedKey));
+          } else {
+            console.error("Failed to remove item from playlist");
           }
         } catch (error) {
-          console.error("Error removing voice from story in playlist:", error);
+          console.error("Error removing item from playlist:", error);
         }
       },
     });
   };
+  
 
   const columns = [
     {
