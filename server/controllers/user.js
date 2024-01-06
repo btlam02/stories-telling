@@ -41,7 +41,19 @@ const userController = {
         .json({ message: "Error deactivating user", error: error.message });
     }
   },
-  
+
+  GetUserById: async (req, res) => {
+    try {
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        return res.status(404).send("User not found");
+      }
+      res.send(user);
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  },
+
   ActiveUser: async (req, res) => {
     try {
       const updatedUser = await User.findByIdAndUpdate(
@@ -66,14 +78,15 @@ const userController = {
   },
 
   updateUser: async (req, res) => {
+    const updates = Object.keys(req.body);
     try {
-      const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true,
-      });
+      const user = await User.findById(req.params.id);
       if (!user) {
-        return res.status(404).send();
+        return res.status(404).send("User not found");
       }
+
+      updates.forEach((update) => (user[update] = req.body[update]));
+      await user.save();
       res.send(user);
     } catch (error) {
       res.status(400).send(error);
@@ -94,7 +107,3 @@ const userController = {
 };
 
 module.exports = userController;
-
-
-
-

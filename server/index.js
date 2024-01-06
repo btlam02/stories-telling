@@ -23,6 +23,7 @@ require('dotenv').config();
 app.use('/uploads', cors(), express.static('uploads'));
 
 mongoose.connect(process.env.DATABASE).then(() => console.log('DB Connected'));
+
 const options = {
   key: fs.readFileSync("./config/create-ca-key.pem"),
   cert: fs.readFileSync("./config/create-ca.pem"),
@@ -42,19 +43,24 @@ const port = process.env.PORT || 8001;
 app.use("/", express.static("public"));
 
 // Define your routes
-app.use('/api', Auth);
-app.use('/api', UserRoute);
-app.use('/api', Voice);
-app.use('/api', Genre);
-app.use('/api', Stories);
-app.use('/api', Wishlist);
-app.use('/api', Playlist);
+app.use('/api',express.static("public"), Auth);
+app.use('/api',express.static("public"), UserRoute);
+app.use('/api',express.static("public"), Voice);
+app.use('/api',express.static("public"),Genre);
+app.use('/api',express.static("public"),Stories);
+app.use('/api',express.static("public"),Wishlist);
+app.use('/api',express.static("public"),Playlist);
 
-// Create an HTTPS server
-https.createServer(options, app).listen(port, () => {
-  console.log(`Server is running on https://localhost:${port}`);
+app.listen(8001, () => {
+  console.log(`Server is running on port 8001`);
 });
 
+
+// //Create an HTTPS server
+// https.createServer(options, app).listen(port, () => {
+//   console.log(`Server is running on https://localhost:${port}`);
+// });
+
 // https.createServer(options, app).listen(8080, () => {
-//   console.log(`HTTPS server started on port 8080`);
+//   console.log(`HTTPS server started on port 8080`, options);
 // });

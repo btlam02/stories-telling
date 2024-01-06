@@ -9,6 +9,7 @@ const addStory = async (req, res) => {
       imageUrl: req.file ? req.file.path : undefined, 
       generatedVoice: req.body.generatedVoice,
 
+      
     };
     let story = new Story(storyData);
     story = await story.save();

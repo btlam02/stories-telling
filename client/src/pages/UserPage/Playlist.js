@@ -104,7 +104,7 @@ const PlaylistPage = () => {
             // Giả sử title nằm ở phần tử đầu tiên của array trả về
             setVoiceTitle(response.data[0].title);
           } else {
-            setVoiceTitle("N/A");
+            setVoiceTitle("Default");
           }
         } catch (error) {
           console.error("Error fetching voice data:", error);
