@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 
 import AudioRecorder from "./Voice";
 import axios from "axios";
+import './css/ManageVoice.css'
+
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -32,6 +34,7 @@ const AudioList = () => {
     }
   }, [userId]);
 
+
   const handleAudioChange = (event) => {
     setSelectedAudio(event.target.value);
   };
@@ -57,12 +60,12 @@ const AudioList = () => {
 
   const columns = [
     {
-      title: "Title",
+      title: "Tên giọng đọc",
       dataIndex: "title",
       key: "title",
     },
     {
-      title: "Play",
+      title: "Âm thanh",
       key: "play",
       render: (_, record) =>
         record.recordings?.map((recording, index) => (
@@ -70,7 +73,7 @@ const AudioList = () => {
         )),
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Button type="danger" onClick={() => deleteAudio(record._id)}>
@@ -84,8 +87,8 @@ const AudioList = () => {
     <div>
       <div>
         <div style={{ textAlign: "Left" }}>
-          <h2 style={{ textAlign: "Left" }}>Manage Voices</h2>
-         <Button onClick={() => navigate('/user/record')}><PlusSquareOutlined/>Add New Voice</Button>
+          <h1 style={{ textAlign: "Left" }}>QUẢN LÝ GIỌNG ĐỌC</h1>
+         <Button className = 'manageVoice-btn' onClick={() => navigate('/user/record')}><PlusSquareOutlined/>Thêm Giọng Đọc</Button>
           <h1></h1>
           <Table columns={columns} dataSource={audios} rowKey="_id" />
         </div>

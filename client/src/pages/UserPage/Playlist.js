@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Table, Button, Modal } from "antd";
-import { PlayCircleFilled, DeleteOutlined } from "@ant-design/icons";
+import { Table, Button, Modal, Tooltip } from "antd";
+import { PlayCircleFilled, DeleteOutlined, DeleteFilled } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import QRCode from "qrcode.react";
@@ -74,6 +74,7 @@ const PlaylistPage = () => {
               return voice ? {
                 key: `${item.storyId}__${item.voiceId}`,
                 title: storyData.title,
+                imageUrl: storyData.imageUrl ? `${API_URL}/${storyData.imageUrl}` : null,
                 narrator: voice.narrator,
                 audioUrl: `${API_URL}/${voice.audioUrl}`, // Đường dẫn âm thanh cụ thể
               } : null;
@@ -155,12 +156,24 @@ const PlaylistPage = () => {
 
   const columns = [
     {
-      title: "Title",
+      title: "Hình ảnh",
+      dataIndex: "imageUrl",
+      key: "imageUrl",
+      render: (imageUrl) =>
+        imageUrl ? (
+          <img src={imageUrl} alt="Story" style={{ maxWidth: "50px" }} />
+        ) : (
+          "No image"
+        ),
+    },
+
+    {
+      title: "Tên truyện",
       dataIndex: "title",
       key: "title",
     },
     {
-      title: "Voice",
+      title: "Giọng đọc",
       dataIndex: "voiceId",
       key: "voiceId",
       render: (_, record) => {
@@ -171,23 +184,27 @@ const PlaylistPage = () => {
     },
 
     {
-      title: "Action",
+      title: "Hành động",
       key: "action",
       render: (_, record) => {
         const [storyId, voiceId] = record.key.split("__");
         //console.log(`storyId: ${storyId}, voiceId: ${voiceId}`);
         return (
           <>
-            <Button onClick={() => playAudio(record.audioUrl)}>
+          <Tooltip title="Play Audio"> 
+            <Button style={{color: '#5865F2'}} onClick={() => playAudio(record.audioUrl)}>
               <PlayCircleFilled />
             </Button>
+          </Tooltip>
 
+          <Tooltip title="Remove from Playlist"> 
             <Button
               onClick={() => handleRemoveFromPlaylist(record.key)}
-              style={{ marginLeft: 8 }}
+              style={{ marginLeft: 8 , color: '#ff0000'}}
             >
-              <DeleteOutlined />
+              <DeleteFilled/>
             </Button>
+            </Tooltip>
           </>
         );
       },
@@ -202,7 +219,7 @@ const PlaylistPage = () => {
 
   return (
     <div style={{ margin: "0px 100px" }}>
-      <h2 style={{ textAlign: "Left" }}>My Playlist</h2>
+      <h2 style={{ textAlign: "Left" }}> Danh sách phát</h2>
       <Table dataSource={playlistData} columns={columns} />
 
       <Modal

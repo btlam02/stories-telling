@@ -17,6 +17,9 @@ import {
   LoadingOutlined,
   PlayCircleFilled,
   SearchOutlined,
+  DeleteFilled,
+  SlidersFilled,
+  SlidersOutlined
 } from "@ant-design/icons";
 const { Option } = Select;
 
@@ -212,16 +215,19 @@ const WishlistPage = () => {
       message.info(
         "This story has already been generated with the selected voice."
       );
+
       return;
     }
 
     // Tiếp tục thực hiện generate story nếu giọng chưa được generated
     try {
       setLoading(true);
+      setSelectedStoryId(storyId);
       setLoadingProgress(30);
 
       const audioPath = await generateAudio(selectedVoiceId, storyDescription);
       setLoadingProgress(60);
+      console.log(loadingProgress); 
 
       const audioUrl = await retrieveAudio(audioPath);
       setLoadingProgress(90);
@@ -247,7 +253,7 @@ const WishlistPage = () => {
 
       if (uploadResponse.status === 200) {
         message.success("Story generated and saved successfully.");
-
+        setLoadingProgress(100);
         setWishlist((prevWishlist) =>
           prevWishlist.map((storyItem) => {
             if (storyItem._id === storyId) {
@@ -317,34 +323,10 @@ const WishlistPage = () => {
         return story;
       })
     );
-    // Cập nhật các state khác nếu cần
-    // ...
+
   };
 
-  // const addToPlaylist = async (storyId, selectedVoiceId) => {
-  //   if (!selectedVoiceId) {
-  //     message.warning("Please select a voice before adding to the playlist.");
-  //     return;
-  //   }
 
-  //   try {
-  //     const response = await axios.post(`${API_URL}/api/playlist/add`, {
-  //       userId,
-  //       storyId,
-  //       voiceId: selectedVoiceId,
-  //     });
-
-  //     if (response.status === 200) {
-  //       message.success("Story added to playlist successfully.");
-  //       // Cập nhật UI ở đây nếu cần
-  //     } else {
-  //       message.error("Failed to add story to playlist.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error adding to playlist:", error);
-  //     message.error("Failed to add to playlist. " + error.message);
-  //   }
-  // };
 
   const addToPlaylist = async (storyId, voiceSelection) => {
     try {
@@ -353,16 +335,19 @@ const WishlistPage = () => {
         userId: userId,
         storyId: storyId,
       };
-  
+
       if (voiceSelection === "default") {
         // Gọi API thêm giọng đọc mặc định
-        response = await axios.post(`${API_URL}/api/playlist/add-default-voice`, requestData);
+        response = await axios.post(
+          `${API_URL}/api/playlist/add-default-voice`,
+          requestData
+        );
       } else {
         // Gọi API thêm giọng đọc cụ thể
         requestData.voiceId = voiceSelection;
         response = await axios.post(`${API_URL}/api/playlist/add`, requestData);
       }
-  
+
       if (response.status === 200) {
         message.success("Story added to playlist successfully.");
       } else {
@@ -373,13 +358,10 @@ const WishlistPage = () => {
       message.error("Failed to add to playlist. " + error.message);
     }
   };
-  
-
-  
 
   const wishlistColumns = [
     {
-      title: "Image",
+      title: "Hình ảnh",
       dataIndex: "imageUrl",
       key: "imageUrl",
       render: (imageUrl) =>
@@ -391,19 +373,26 @@ const WishlistPage = () => {
     },
 
     {
-      title: isSearchVisible ? (
-        <Input
-          placeholder="Search by title"
-          onChange={handleSearch}
-          onBlur={hideSearch} // Thêm sự kiện onBlur
-          autoFocus
-        />
-      ) : (
-        <Button
-          icon={<SearchOutlined />}
-          onClick={() => setIsSearchVisible(true)}
-        />
+      title: (
+        <div>
+          Tên truyện
+          {isSearchVisible ? (
+            <Input
+              placeholder="Nhập tên truyện"
+              onChange={handleSearch}
+              onBlur={hideSearch} // Sự kiện onBlur
+              autoFocus
+            />
+          ) : (
+            <Button
+              icon={<SearchOutlined />}
+              onClick={() => setIsSearchVisible(true)}
+              style={{ marginLeft: "10px",color: 'ff0000' }}
+            />
+          )}
+        </div>
       ),
+
       dataIndex: "title",
       key: "title",
       // Lọc dữ liệu dựa trên searchText
@@ -413,28 +402,48 @@ const WishlistPage = () => {
     },
 
     {
-      title: "Voice",
+      title: "Giọng đọc",
       key: "voice",
       render: (text, record) => (
         <Select
-          style={{ width: 120 }}
-          onChange={(value) => handleVoiceChange(value, record._id)}
-          value={
-            voiceSelections[record._id] || (record.isGenerated && "default")
-          }
-        >
-          {record.isGenerated && <Option value="default">Default</Option>}
+      style={{ width: 120 }}
+      onChange={(value) => handleVoiceChange(value, record._id)}
+      value={
+        (record.isGenerated && !voiceSelections[record._id]) 
+          ? "default" 
+          : voiceSelections[record._id] || ""
+      }
+    >
+    
+      {record.isGenerated && <Option value="default">Default</Option>}
 
-          {voices.map((voice) => (
-            <Option key={voice._id} value={voice.voiceId || voice._id}>
-              {voice.title}
-            </Option>
-          ))}
-        </Select>
+      {voices.map((voice) => (
+        <Option key={voice._id} value={voice.voiceId || voice._id}>
+          {voice.title}
+        </Option>
+      ))}
+    </Select>
       ),
     },
     {
-      title: "Actions",
+      title: "Trạng thái",
+      key: "progress",
+      render: (text, record) => {
+        // Giả sử bạn lưu trữ trạng thái trong `userVoices`
+        const voiceStatus = record.userVoices.find(voice => voice.voiceId === voiceSelections[record._id])?.status;
+        const selectedVoiceId = voiceSelections[record._id];
+        const isDefaultVoiceSelected = selectedVoiceId === "default";
+        if (voiceStatus === "completed" ||isDefaultVoiceSelected ) {
+          return "Hoàn thành";
+        } else if (selectedStoryId === record._id && loadingProgress > 0 && loadingProgress < 100) {
+          return "Đang xử lý";
+        } else {
+          return "Chưa xử lý";
+        }
+      },
+    },
+    {
+      title: "Hành động",
       key: "actions",
       render: (text, record) => {
         const userId = localStorage.getItem("id");
@@ -457,18 +466,19 @@ const WishlistPage = () => {
 
         return (
           <>
-            {!selectedVoiceId && !isDefaultVoiceSelected &&(
+            {!selectedVoiceId && !isDefaultVoiceSelected && (
               <Tooltip title="Select a voice first">
-                <Button icon={<PlayCircleOutlined />} disabled />
+                <Button icon={<SlidersOutlined />} disabled />
               </Tooltip>
             )}
             {selectedVoiceId && !voiceGenerated && !isDefaultVoiceSelected && (
               <Tooltip title="Generate Story">
                 <Button
-                  icon={<PlayCircleFilled />}
+                  icon={<SlidersFilled />}
                   loading={isGenerating}
                   onClick={() => generateStory(record._id, record.description)}
                   disabled={isGenerating}
+                  style={{color:'#029FAE'}}
                 />
               </Tooltip>
             )}
@@ -490,11 +500,11 @@ const WishlistPage = () => {
 
             <Tooltip title="Remove from Wishlist">
               <Button
-                icon={<DeleteOutlined />}
+                icon={<DeleteFilled/>}
                 onClick={() => removeFromWishlist(record._id)}
                 disabled={isGenerating}
-                style={{ marginLeft: 8 }}
-              />
+                style={{ marginLeft: 8, color:'#ff0000'}}
+             /> 
             </Tooltip>
           </>
         );
@@ -505,7 +515,7 @@ const WishlistPage = () => {
   return (
     <div style={{ textAlign: "left" }}>
       <div style={{ margin: "50px 100px 0px 105px" }}>
-        <h2>My Wishlist</h2>
+        <h2 style={{color: '#029FAE'}}> Yêu thích</h2>
         <Table
           columns={wishlistColumns}
           dataSource={filteredWishlist}
@@ -515,5 +525,6 @@ const WishlistPage = () => {
     </div>
   );
 };
+
 
 export default WishlistPage;

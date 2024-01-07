@@ -43,7 +43,7 @@ const RecordButton = styled(Button)`
 `;
 
 const sentences = [
-  "Xuân sang cành lá đâm chồi, bao buồn vui qua rồi đưa con về với yên bình.Đưa con về với gia đình nặng nghĩa ân tình. Cây mai đào khoe sắc tô thêm màu nhẹ nhàng trong nắng xuân tươi hồng cùng nhịp...",
+  "Ngày xửa ngày xưa, có hai chị em cùng cha khác mẹ tên là Tấm và Cám. Mẹ Tấm mất sớm, còn cha Tấm cưới thêm mẹ Cám, cha Tấm vô cùng hết mực yêu thương cô, nhưng rồi ông bệnh nặng, không lâu sau đó thì qua đời",
 ];
 
 const AudioRecorder = () => {
@@ -369,22 +369,22 @@ const AudioRecorder = () => {
     <>
       <RecorderContainer>
         <div style={{ padding: "20px" }}>
-          <h2>Audio Recorder</h2>
+          <h2>THÊM GIỌNG ĐỌC</h2>
           <Input
             type="text"
-            placeholder="Enter recording title..."
+            placeholder="Tên giọng đọc...."
             value={recordingTitle}
             onChange={(e) => setRecordingTitle(e.target.value)}
           />
         </div>
-        <h3>
-          Recording progress: {currentSentenceIndex + 1}/{sentences.length}
-        </h3>
+        <h4>
+          Hãy đọc rõ ràng câu cần ghi âm
+        </h4>
         <Space direction="vertical" style={{ width: '100%' }}>
           <Progress percent={progress} status="active" />
           <p>{statusMessage}</p>
         </Space>
-        <p>{sentences[currentSentenceIndex]}</p>
+        <h4>{sentences[currentSentenceIndex]}</h4>
         <Waveform ref={canvasRef} />
         <Controls>
           <Button

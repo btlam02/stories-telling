@@ -46,7 +46,7 @@ const UserInformation = () => {
 
   return (
     <div className="user-information-container">
-      <h1 style={{marginLeft:'70px'}}>User Information</h1>
+      <h1 style={{marginLeft:'70px'}}>Thông tin người dùng</h1>
       <div style={{textAlign:'left', marginLeft:'70px'}}>
       {!editMode && (
         <Button
@@ -54,9 +54,8 @@ const UserInformation = () => {
           onClick={() => setEditMode(true)}
           icon={<EditOutlined />}
           style={{ marginBottom: "20px" }}
-          
         >
-          Edit
+          Thay đổi
         </Button>
         
       )}
@@ -64,7 +63,7 @@ const UserInformation = () => {
       <Form form={form} onFinish={onFinish} layout="vertical" className="custom-form">
         <Row justify="left" gutter={25}>
           <Col span={8}>
-            <Form.Item label="Full name" name="name">
+            <Form.Item label="Tên" name="name">
               <Input
                 className={!editMode ? "input-disabled" : ""}
                 disabled={!editMode}
@@ -91,9 +90,9 @@ const UserInformation = () => {
                 htmlType="submit"
                 style={{ marginRight: "20px", height:"40px" }}
               >
-                Update Profile
+               Cập nhật
               </Button>
-              <Button style={{ marginRight: "530px", height:"40px" ,marginTop: "100px"}} onClick={() => setEditMode(false)} >Cancel</Button>
+              <Button style={{ marginRight: "400px", height:"40px" ,marginTop: "100px"}} onClick={() => setEditMode(false)} >Huỷ</Button>
             </>
           )}
         </div>

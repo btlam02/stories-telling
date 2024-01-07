@@ -2,9 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import GenreForm from "../../components/Form/GenreForm";
 import { Button, Table, Modal } from "antd";
-
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import "./css/ManageGenre.css"
+import { EditOutlined, DeleteOutlined, DeleteFilled } from "@ant-design/icons";
 import {PlusSquareOutlined} from '@ant-design/icons'
+
+
+
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -69,10 +72,10 @@ const ManageGenres = () => {
   const renderAction = (text, record) => (
     <>
       <Button onClick={() => handleEdit(record)}>
-        <EditOutlined />
+        <EditOutlined style={{color: '#F76B56'}}/>
       </Button>
       <Button onClick={() => handleDelete(record._id)} style={{ marginLeft: "10px" }}>
-        <DeleteOutlined />
+        <DeleteFilled style={{color: '#ff0000'}}/>
       </Button>
     </>
   );
@@ -96,8 +99,8 @@ const ManageGenres = () => {
   return (
     <div style={{textAlign:'Left'}}>
       <h1 style= {{textAlign:'Left'}} >Manage Genres</h1>
-      <Button onClick={handleAdd} style={{ height: "50px", width: "50px", borderRadius: "8px" }}>
-      <PlusSquareOutlined />
+      <Button className="manageGenre-btn" onClick={handleAdd} >
+      <PlusSquareOutlined /> Thêm thể loại
       </Button>
       <h2> </h2>
       <Table columns={columns} dataSource={genres.map((genre) => ({ ...genre, key: genre._id }))} />

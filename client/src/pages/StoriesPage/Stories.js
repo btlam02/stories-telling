@@ -59,6 +59,7 @@ const StoriesPage = () => {
     fetchWishlist();
   }, [userId]);
 
+
   console.log(wishlist);
   const isStoryInWishlist = (storyId) => {
     return wishlist && Array.isArray(wishlist.stories) && wishlist.stories.some(story => story._id === storyId);
@@ -207,3 +208,5 @@ const StoriesPage = () => {
 };
 
 export default StoriesPage;
+
+
