@@ -19,6 +19,7 @@ exports.signup = async (req, res) => {
     await user.save();
     res.status(201).send("Sign Up Sucessfully!");
   } catch (error) {
+
     res.status(500).send(error.message);
   }
 };
@@ -31,6 +32,7 @@ exports.signin = async (req, res) => {
       if (!user) {
         return res.status(401).send("Email does not match!");
       }
+      if (!user.active) { return done(null, false, { message: 'Account Lock'}); }
   
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {

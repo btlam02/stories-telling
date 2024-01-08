@@ -39,8 +39,8 @@ app.use(expressSanitizer());
 // Define port
 const port = process.env.PORT || 8001;
 
-// Import your SSL files
-app.use("/", express.static("public"));
+// // Import your SSL files
+// app.use("/", express.static("public"));
 
 // Define your routes
 app.use('/api',express.static("public"), Auth);

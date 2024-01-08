@@ -38,29 +38,22 @@ const UserInformation = () => {
       await axios.put(`${API_URL}/api/update-user/${userId}`, values);
       setEditMode(false);
       setUserInfo(values);
-      message.success("User information updated successfully");
+      message.success("Cập nhật thông tin user thành công !");
     } catch (error) {
-      message.error("Error updating user information");
+      message.error("Lỗi cập nhật thông tin!");
     }
   };
 
   return (
     <div className="user-information-container">
-      <h1 style={{marginLeft:'70px'}}>Thông tin người dùng</h1>
-      <div style={{textAlign:'left', marginLeft:'70px'}}>
-      {!editMode && (
-        <Button
-          type="primary"
-          onClick={() => setEditMode(true)}
-          icon={<EditOutlined />}
-          style={{ marginBottom: "20px" }}
-        >
-          Thay đổi
-        </Button>
-        
-      )}
-      </div>
-      <Form form={form} onFinish={onFinish} layout="vertical" className="custom-form">
+      <h1 style={{ marginLeft: "70px" }}>Thông tin người dùng</h1>
+      <div style={{ textAlign: "left", marginLeft: "70px" }}></div>
+      <Form
+        form={form}
+        onFinish={onFinish}
+        layout="vertical"
+        className="custom-form"
+      >
         <Row justify="left" gutter={25}>
           <Col span={8}>
             <Form.Item label="Tên" name="name">
@@ -80,6 +73,13 @@ const UserInformation = () => {
               />
             </Form.Item>
           </Col>
+          {!editMode && (
+            <Button
+              type="primary"
+              onClick={() => setEditMode(true)}
+              style={{ marginBottom: "20px", marginLeft:"20px", marginTop: "34px", height:'48px' }}
+            ><EditOutlined /></Button>
+          )}
         </Row>
 
         <div style={{ textAlign: "right" }}>
@@ -88,11 +88,20 @@ const UserInformation = () => {
               <Button
                 type="primary"
                 htmlType="submit"
-                style={{ marginRight: "20px", height:"40px" }}
+                style={{ marginRight: "20px", height: "40px" }}
               >
-               Cập nhật
+                Cập nhật
               </Button>
-              <Button style={{ marginRight: "400px", height:"40px" ,marginTop: "100px"}} onClick={() => setEditMode(false)} >Huỷ</Button>
+              <Button
+                style={{
+                  marginRight: "400px",
+                  height: "40px",
+                  marginTop: "100px",
+                }}
+                onClick={() => setEditMode(false)}
+              >
+                Huỷ
+              </Button>
             </>
           )}
         </div>

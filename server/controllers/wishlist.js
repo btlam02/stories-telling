@@ -32,6 +32,7 @@ const getWishlist = async (req, res) => {
 const addToWishlist = async (req, res) => {
     const userId = req.params.userId;
     const { storyId } = req.body;
+    
   
     try {
       let wishlist = await Wishlist.findOne({ user: userId });

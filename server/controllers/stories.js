@@ -19,23 +19,6 @@ const addStory = async (req, res) => {
   }
 };
 
-// const addStory = async (req, res) => {
-//   try {
-//     if (!req.file) {
-//       return res.status(400).send('No image file provided');
-//     }
-
-//     const storyData = {
-//       ...req.body,
-//       imageUrl: req.file.path // Lấy đường dẫn ảnh
-//     };
-//     let story = new Story(storyData);
-//     story = await story.save();
-//     res.status(201).send(story);
-//   } catch (error) {
-//     res.status(400).send(error.message);
-//   }
-// };
 
 const getAllStories = async (req, res) => {
   try {
@@ -72,6 +55,7 @@ const updateStory = async (req, res) => {
     if (!story) return res.status(404).send("Story not found");
     res.send(story);
   } catch (error) {
+    
     res.status(500).send(error.message);
   }
 };

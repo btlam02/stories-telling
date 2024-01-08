@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Table, Button, Modal, Tooltip } from "antd";
+import { Table, Button, Modal, Tooltip, message} from "antd";
 import { PlayCircleFilled, DeleteOutlined, DeleteFilled } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import QRCode from "qrcode.react";
 
@@ -14,57 +14,29 @@ const PlaylistPage = () => {
   const [showQR, setShowQR] = useState(false);
   const navigate = useNavigate();
   const [voiceTitle, setVoiceTitle] = useState("");
+  const [isOwner, setIsOwner] = useState(false);
 
-  const userId = localStorage.getItem("id");
+  const {userId} = useParams();
 
   useEffect(() => {
-    // const fetchPlaylistData = async () => {
-    //   try {
-    //     const playlistResponse = await axios.get(`${API_URL}/api/playlist/${userId}`);
-    //     if (playlistResponse.data && Array.isArray(playlistResponse.data.playlist)) {
-    //       const playlistItems = playlistResponse.data.playlist;
-  
-    //       const storyFetchPromises = playlistItems.map(item =>
-    //         axios.get(`${API_URL}/api/get-stories/${item.storyId}`)
-    //       );
-  
-    //       const storyResponses = await Promise.all(storyFetchPromises);
-          
-    //       const allVoices = storyResponses.map((response, index) => {
-    //         const storyData = response.data;
-    //         const playlistItem = playlistItems[index];
-    //         const voice = storyData.userVoices.find(v => v.voiceId === playlistItem.voiceId);
-  
-    //         return voice ? {
-    //           key: `${playlistItem.storyId}__${playlistItem.voiceId}`,
-    //           title: storyData.title,
-    //           narrator: voice.narrator,
-    //           audioUrl: `${API_URL}/${voice.audioUrl}`,
-    //         } : null;
-    //       }).filter(v => v !== null);
-  
-    //       setPlaylistData(allVoices);
-    //     }
-    //   } catch (error) {
-    //     console.error("Error fetching playlist data:", error);
-    //   }
-    // };
     const fetchPlaylistData = async () => {
       try {
         const playlistResponse = await axios.get(`${API_URL}/api/playlist/${userId}`);
         if (playlistResponse.data && Array.isArray(playlistResponse.data.playlist)) {
           const playlistItems = playlistResponse.data.playlist;
-      
+
+          const currentUserId = localStorage.getItem('id');
+          setIsOwner(userId === currentUserId);
           const processedItems = playlistItems.map(async (item) => {
             if (item.voiceId === "" || item.voiceTitle === "Default") {
-              // Xử lý cho giọng đọc mặc định
               const storyResponse = await axios.get(`${API_URL}/api/get-stories/${item.storyId}`);
               const storyData = storyResponse.data;
               return {
                 key: `${item.storyId}__default`,
                 title: storyData.title,
+                imageUrl: storyData.imageUrl ? `${API_URL}/${storyData.imageUrl}` : null,
                 narrator: "Default Voice",
-                audioUrl: storyData.generatedVoice ? `${API_URL}/${storyData.generatedVoice}` : "", // Sử dụng generatedVoice làm URL
+                audioUrl: storyData.generatedVoice ? `${API_URL}/${storyData.generatedVoice}` : "", // 
               };
             } else {
               // Xử lý cho giọng đọc cụ thể
@@ -102,7 +74,7 @@ const PlaylistPage = () => {
         try {
           const response = await axios.get(`${API_URL}/api/audio/${voiceId}`);
           if (response.data && response.data.length > 0) {
-            // Giả sử title nằm ở phần tử đầu tiên của array trả về
+
             setVoiceTitle(response.data[0].title);
           } else {
             setVoiceTitle("Default");
@@ -126,25 +98,28 @@ const PlaylistPage = () => {
     const isDefaultVoice = voiceId === "default";
   
     Modal.confirm({
-      title: "Are you sure you want to remove this item from the playlist?",
-      content: "This action cannot be undone",
-      okText: "Yes, remove it",
-      cancelText: "No, keep it",
+      title: "Bạn có chắc muốn xoá bài này khỏi Danh sách phát?",
+      content: " Hành động sẽ được tiếp tục",
+      okText: "Xác nhận",
+      cancelText: "Huỷ",
       onOk: async () => {
         try {
           let response;
           if (isDefaultVoice) {
             // Gửi request xoá cho giọng đọc mặc định
             response = await axios.delete(`${API_URL}/api/playlist/${userId}/remove-default/${storyId}`);
+            message.success("Câu chuyện được xóa thành công!")
           } else {
-            // Gửi request xoá thông thường
+        
             response = await axios.delete(`${API_URL}/api/playlist/${userId}/remove/${storyId}/${voiceId}`);
+            message.success("Câu chuyện được xóa thành công!")
           }
   
           if (response.status === 200) {
             setPlaylistData((prevPlaylistData) => prevPlaylistData.filter((item) => item.key !== combinedKey));
           } else {
             console.error("Failed to remove item from playlist");
+            message.error("Câu chuyện được xóa không thành công!")
           }
         } catch (error) {
           console.error("Error removing item from playlist:", error);
@@ -192,19 +167,21 @@ const PlaylistPage = () => {
         return (
           <>
           <Tooltip title="Play Audio"> 
-            <Button style={{color: '#5865F2'}} onClick={() => playAudio(record.audioUrl)}>
+            <Button style={{color: '#ffffff', background:'#5865F2'}} onClick={() => playAudio(record.audioUrl)}>
               <PlayCircleFilled />
             </Button>
           </Tooltip>
 
-          <Tooltip title="Remove from Playlist"> 
-            <Button
-              onClick={() => handleRemoveFromPlaylist(record.key)}
-              style={{ marginLeft: 8 , color: '#ff0000'}}
-            >
-              <DeleteFilled/>
-            </Button>
-            </Tooltip>
+         {isOwner && (
+        <Tooltip title="Remove from Playlist"> 
+          <Button
+            onClick={() => handleRemoveFromPlaylist(record.key)}
+            style={{ marginLeft: 8, color: '#ffffff', background: '#ff0000'}}
+          >
+            <DeleteFilled/>
+          </Button>
+        </Tooltip>
+      )}
           </>
         );
       },
@@ -217,6 +194,14 @@ const PlaylistPage = () => {
     setIsModalVisible(true);
   }, []);
 
+  const handleModalClose = () => {
+    if (currentAudioUrl.current) {
+      currentAudioUrl.current.pause();
+      currentAudioUrl.current.currentTime = 0; 
+    }
+    setIsModalVisible(false);
+  };
+
   return (
     <div style={{ margin: "0px 100px" }}>
       <h2 style={{ textAlign: "Left" }}> Danh sách phát</h2>
@@ -224,16 +209,18 @@ const PlaylistPage = () => {
 
       <Modal
         key={currentAudioUrl}
-        title="Audio Player"
+        title="Phát câu chuyện" 
         visible={isModalVisible}
         onOk={() => setIsModalVisible(false)}
-        onCancel={() => setIsModalVisible(false)}
-        footer={null}
+        onCancel={handleModalClose}
+        footer= ""
       >
+        <div style={{textAlign:'center'}}>
         <audio controls autoPlay>
           <source src={currentAudioUrl} type="audio/mpeg" />
           Your browser does not support the audio element.
         </audio>
+        </div>
       </Modal>
       <h3>SCAN QR CODE</h3>
       <QRCode value={window.location.href} size={128} level={"H"} />

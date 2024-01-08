@@ -1,5 +1,5 @@
 import React from "react";
-import { HeartOutlined, PlayCircleOutlined, HeartTwoTone } from "@ant-design/icons";
+import { HeartOutlined, PlayCircleOutlined, HeartTwoTone, HeartFilled } from "@ant-design/icons";
 import { Card } from "antd";
 import defaultImage from "./default-image.jpg"
 import './Card.css'
@@ -15,11 +15,9 @@ const StoriesCard = ({ story, imageUrl, onAddToWishlist, onPlay, isInWishlist })
       style={{ width: 240, margin: "10px" }}
       cover={<img alt={story.title} src={displayImage} />}
       actions={[
-        <HeartTwoTone 
-          twoToneColor={isInWishlist ? "#ff0000" : "#808080"} 
-          key="add" 
-          onClick={() => onAddToWishlist(story._id)} 
-        />,
+        isInWishlist 
+        ? <HeartFilled style={{color:'#ff0000'}} key="add" onClick={() => onAddToWishlist(story._id)} />
+        : <HeartOutlined  key="add" onClick={() => onAddToWishlist(story._id)} />,
         <PlayCircleOutlined key="play" onClick={() => onPlay(story._id)} />,
       ]}
     >

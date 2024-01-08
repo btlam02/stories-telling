@@ -46,6 +46,8 @@ const sentences = [
   "Ngày xửa ngày xưa, có hai chị em cùng cha khác mẹ tên là Tấm và Cám. Mẹ Tấm mất sớm, còn cha Tấm cưới thêm mẹ Cám, cha Tấm vô cùng hết mực yêu thương cô, nhưng rồi ông bệnh nặng, không lâu sau đó thì qua đời",
 ];
 
+
+
 const AudioRecorder = () => {
   const { user } = useContext(UserContext);
   const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
@@ -384,7 +386,7 @@ const AudioRecorder = () => {
           <Progress percent={progress} status="active" />
           <p>{statusMessage}</p>
         </Space>
-        <h4>{sentences[currentSentenceIndex]}</h4>
+        <h2>{sentences[currentSentenceIndex]}</h2>
         <Waveform ref={canvasRef} />
         <Controls>
           <Button

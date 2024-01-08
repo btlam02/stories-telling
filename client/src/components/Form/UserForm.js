@@ -29,18 +29,18 @@ const UserForm = forwardRef(({ initialUserData, onSubmit }, ref) => {
   }));
 
   return (
-    <Form>
+    <Form layout="vertical">
       <Form.Item label="Email">
         <Input name="email" value={formData.email} onChange={handleChange} />
       </Form.Item>
 
-      <Form.Item label="Password">
+      <Form.Item label="Mật khẩu">
         <Input name="password" value={formData.password} onChange={handleChange} />
       </Form.Item>
-      <Form.Item label="Name">
+      <Form.Item label="Tên">
         <Input name="name" value={formData.name} onChange={handleChange} />
       </Form.Item>
-      <Form.Item label="Role">
+      <Form.Item label="Vai trò">
         <Select
           name="role"
           value={formData.role}

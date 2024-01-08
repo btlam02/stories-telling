@@ -17,20 +17,21 @@ const ManageUsers = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
+
   const renderAction = (user) => {
     return (
       <>
-      {user.status === "Active" ? (
-        <Button onClick={() => handleDeactiveUser(user.key)} style={{ marginRight: '10px' }}>
-          <UnlockOutlined/>
+      {user.status === "Kích hoạt" ? (
+        <Button onClick={() => handleDeactiveUser(user.key)} style={{ marginRight: '10px', color:'#ffffff', background:'#5865F2'}}>
+          <UnlockOutlined  />
         </Button>
       ) : (
-        <Button onClick={() => handleActivateUser(user.key)} style={{ marginRight: '10px' }}>
+        <Button onClick={() => handleActivateUser(user.key)} style={{ marginRight: '10px',color:'#ffffff', background:'#5865F2' }}>
            <LockOutlined/>
         </Button>
       )}
 
-        <Button onClick={() => handleEditUser(user)}>
+        <Button style={{ marginRight: '10px',color:'#ffffff', background:'#F19E3D'}} onClick={() => handleEditUser(user)}>
           <EditOutlined />
         </Button>
       </>
@@ -57,9 +58,9 @@ const ManageUsers = () => {
   ];
 
   const handleDeactiveUser = (userId) => {
-    deactivateUser(userId, token) // Assuming deactivateUser API needs a token
+    deactivateUser(userId) // Assuming deactivateUser API needs a token
       .then(() => {
-        LoadListUser(); // Refresh the list after deactivation
+        LoadListUser();
       })
       .catch(error => {
         console.error('Error deactivating user:', error);
@@ -67,9 +68,9 @@ const ManageUsers = () => {
   };
 
   const handleActivateUser = (userId) => {
-    activateUser(userId, token) 
+    activateUser(userId) 
       .then(() => {
-        LoadListUser(); // Refresh the list after activation
+        LoadListUser(); 
       })
       .catch(error => {
         console.error('Error activating user:', error);
@@ -152,9 +153,9 @@ const ManageUsers = () => {
       <PlusSquareOutlined /> Thêm người dùng 
     </Button>
     <h2> </h2>
-    <Table rowSelection={rowSelection} columns={columns} dataSource={users} />
+    <Table  columns={columns} dataSource={users} />
     <Modal
-      title={editingUser ? "Edit User" : "Create New User"}
+      title={editingUser ? "Chỉnh sửa thông tin người dùng" : "Khởi tạo người dùng "}
       open={isModalOpen}
       onOk={handleOk}
       onCancel={() => { setIsModalOpen(false); setEditingUser(null); }}
@@ -163,6 +164,7 @@ const ManageUsers = () => {
         ref={formRef}
         initialUserData={editingUser} 
         onSubmit={handleFormSubmit} 
+        
       />
     </Modal>
   </div>

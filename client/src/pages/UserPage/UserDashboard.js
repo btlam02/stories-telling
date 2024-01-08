@@ -29,10 +29,10 @@ const UserPage = () => {
     logout();
     navigate("/");
     Swal.fire({
-      title: "Sign Out Successfully!",
-      text: "See you soon!",
+      title: "Đăng xuất thành công!",
+      text: "Hẹn gặp lại!",
       icon: "success",
-      confirmButtonText: "Done",
+      confirmButtonText: "Xác nhận",
     });
   };
 
@@ -85,7 +85,7 @@ const UserPage = () => {
             {
               key: "1",
               icon: <UserOutlined />,
-              label: "Account",
+              label: "Người dùng",
             },
             // {
             //   key: "2",
@@ -95,12 +95,12 @@ const UserPage = () => {
             {
               key: "3",
               icon: <UploadOutlined />,
-              label: "Manage Voice",
+              label: "Quản lý giọng nói",
             },
             {
               key: "4",
               icon: <LogoutOutlined />,
-              label: "Log out",
+              label: "Đăng xuất",
               onClick: handleLogout,
             },
           ]}

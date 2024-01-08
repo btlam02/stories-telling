@@ -5,19 +5,22 @@ import { UserContext } from "../../context/UserContext";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import UserRoutes from "../../routes/UserRoutes";
-import { UserOutlined, ProfileOutlined , HeartTwoTone} from "@ant-design/icons";
-import axios from 'axios' 
+import {
+  UserOutlined,
+  ProfileOutlined,
+  HeartTwoTone,
+  HeartFilled,
+} from "@ant-design/icons";
+import axios from "axios";
 
-
-
-const API_URL = process.env.REACT_APP_API_URL; 
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { user, logout } = useContext(UserContext);
-  const userId = localStorage.getItem("id")
-  const [userInfo , setUserInfo] = useState([]); 
-  
+  const userId = localStorage.getItem("id");
+  const [userInfo, setUserInfo] = useState([]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -28,8 +31,8 @@ const Navbar = () => {
       }
     };
     fetchData();
-  });
-  
+  }, []);
+
   const handleLogout = () => {
     logout();
     navigate("/");
@@ -43,7 +46,7 @@ const Navbar = () => {
   return (
     <>
       <nav className="navbar">
-        <div className="logo"  >STORY TELLING</div>
+        <div className="logo">STORY TELLING</div>
         <div className="menu">
           {user && user.auth === true ? (
             <>
@@ -56,11 +59,11 @@ const Navbar = () => {
                 activeClassName="active"
                 className="nav-link"
               >
-                Kho truyện 
+                Kho truyện
               </NavLink>
               {user.role === "user" && (
                 <NavLink
-                  to="/user/playlist"
+                  to={`/user/playlist/${userId}`}
                   activeClassName="active"
                   className="nav-link"
                 >
@@ -71,7 +74,7 @@ const Navbar = () => {
           ) : (
             <>
               <NavLink to="/" activeClassName="active" className="nav-link">
-                Home
+                Trang chủ
               </NavLink>
 
               <NavLink
@@ -79,7 +82,7 @@ const Navbar = () => {
                 activeClassName="active"
                 className="nav-link"
               >
-                Story
+                Kho truyện
               </NavLink>
             </>
           )}
@@ -107,7 +110,7 @@ const Navbar = () => {
                     activeClassName="active"
                     className="wishlist-btn"
                   >
-                    <HeartTwoTone twoToneColor="#ff0000" />
+                    <HeartFilled style={{ color: "#ff0000" }} />
                   </NavLink>
 
                   <NavLink
@@ -127,7 +130,7 @@ const Navbar = () => {
                 activeClassName="active"
                 className="login-btn"
               >
-                Login
+                Đăng nhập
               </NavLink>
 
               <NavLink
@@ -135,7 +138,7 @@ const Navbar = () => {
                 activeClassName="active"
                 className="register-btn"
               >
-                Register
+                Đăng ký
               </NavLink>
             </>
           )}

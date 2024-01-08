@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Select, message, Button, Table, Modal } from "antd";
-import { DeleteOutlined, PlusSquareOutlined } from "@ant-design/icons";
+import { DeleteFilled, DeleteOutlined, PlusSquareOutlined } from "@ant-design/icons";
 import { useNavigate } from 'react-router-dom';
 
 import AudioRecorder from "./Voice";
 import axios from "axios";
 import './css/ManageVoice.css'
+
 
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -76,8 +77,8 @@ const AudioList = () => {
       title: "Hành động",
       key: "actions",
       render: (_, record) => (
-        <Button type="danger" onClick={() => deleteAudio(record._id)}>
-          {<DeleteOutlined />}
+        <Button  style={{background:'#ff0000', color:'#ffffff'}} onClick={() => deleteAudio(record._id)}>
+          <DeleteFilled />
         </Button>
       ),
     },

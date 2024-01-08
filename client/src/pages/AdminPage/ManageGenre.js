@@ -71,22 +71,22 @@ const ManageGenres = () => {
 
   const renderAction = (text, record) => (
     <>
-      <Button onClick={() => handleEdit(record)}>
-        <EditOutlined style={{color: '#F76B56'}}/>
+      <Button style={{color: '#ffffff', background:'#F19E3D'}} onClick={() => handleEdit(record)}>
+        <EditOutlined />
       </Button>
-      <Button onClick={() => handleDelete(record._id)} style={{ marginLeft: "10px" }}>
-        <DeleteFilled style={{color: '#ff0000'}}/>
+      <Button onClick={() => handleDelete(record._id)} style={{ marginLeft: "10px",background: '#ff0000',color:'#ffffff'}}>
+        <DeleteFilled />
       </Button>
     </>
   );
 
   const columns = [
     {
-      title: "Name",
+      title: "Thể loại",
       dataIndex: "name",
     },
     {
-      title: "Action",
+      title: "Hành động",
       key: "action",
       render: renderAction,
     },
@@ -98,14 +98,14 @@ const ManageGenres = () => {
 
   return (
     <div style={{textAlign:'Left'}}>
-      <h1 style= {{textAlign:'Left'}} >Manage Genres</h1>
+      <h1 style= {{textAlign:'Left'}} > Quản lý thể loại</h1>
       <Button className="manageGenre-btn" onClick={handleAdd} >
       <PlusSquareOutlined /> Thêm thể loại
       </Button>
       <h2> </h2>
       <Table columns={columns} dataSource={genres.map((genre) => ({ ...genre, key: genre._id }))} />
       <Modal
-        title={editingGenre ? "Edit Genre" : "Add New Genre"}
+        title={editingGenre ? "Chỉnh sửa thể loại" : "Thêm thể loại"}
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}

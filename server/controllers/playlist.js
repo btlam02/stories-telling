@@ -54,7 +54,6 @@ exports.addDefaultVoiceToPlaylist = async (req, res) => {
 };
 
 
-
 // exports.getPlaylist = async (req, res) => {
 //   const { userId } = req.params;
 
@@ -121,6 +120,8 @@ exports.getPlaylist = async (req, res) => {
         };
       }
     }));
+
+
 
     res.status(200).json({ playlist: playlistItems });
   } catch (error) {
