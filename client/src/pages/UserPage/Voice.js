@@ -103,6 +103,10 @@ const AudioRecorder = () => {
     fetchVoiceId();
   }, []);
 
+  const handleNavigate = () => {
+    navigate('/user/dashboard');
+  };
+
   const getMicrophonePermission = async () => {
     if (!("MediaRecorder" in window)) {
       alert("API MediaRecorder không được hỗ trợ trong trình duyệt của bạn.");
@@ -381,8 +385,12 @@ const AudioRecorder = () => {
 
   return (
     <>
+       <div style ={{textAlign:'Left'}}>
+     
+        </div>
       <RecorderContainer>
         <div style={{ padding: "20px" }}>
+       
           <h2>THÊM GIỌNG ĐỌC</h2>
           <Input
             type="text"
@@ -394,7 +402,7 @@ const AudioRecorder = () => {
         <h4>
           Hãy đọc rõ ràng câu cần ghi âm
         </h4>
-
+        <SentenceContainer> <h2> {sentences[currentSentenceIndex]}</h2></SentenceContainer>
         <Waveform ref={canvasRef} />
 
         {savingRecordings && (
@@ -403,14 +411,11 @@ const AudioRecorder = () => {
           <p>{statusMessage}</p>
         </Space>
       )}
-        {/* <Space direction="vertical" style={{ width: '100%' }}>
-          <Progress percent={progress} status="active" />
-          <p>{statusMessage}</p>
-        </Space> */}
-
-        <SentenceContainer> <h2> {sentences[currentSentenceIndex]}</h2></SentenceContainer>
+  
+     
         
         <Controls>
+          
           <Button
             icon={<LeftOutlined />}
             onClick={previousSentence}
@@ -420,7 +425,7 @@ const AudioRecorder = () => {
             <audio src={recordings[currentSentenceIndex]} controls />
           )}
           <RecordButton onClick={recording ? stopRecording : startRecording}>
-            {recording ? "Stop" : "Record"}
+            {recording ? "Dừng" : "Ghi âm"}
           </RecordButton>
           <Button
             icon={<RightOutlined />}
@@ -429,14 +434,16 @@ const AudioRecorder = () => {
           />
         </Controls>
         <h1> </h1>
+      
         <Button
           onClick={uploadRecordings}
           disabled={!recordingTitle || !allRecorded}
         >
-          Save Recordings
+          Lưu giọng đọc
         </Button>
+        <Button style={{marginTop:'10px', width:125, height:35}} onClick={handleNavigate}>Trở lại</Button>
 
-      </RecorderContainer>
+      </RecorderContainer>  
     </>
   );
 };

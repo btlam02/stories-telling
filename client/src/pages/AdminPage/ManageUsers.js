@@ -84,6 +84,8 @@ const ManageUsers = () => {
       } else {
         const transformedData = response.map((user) => ({
           key: user._id,
+          name: user.name,
+          role: user.role,
           email: user.email,
           status: user.active ? "Kích hoạt" : "Khoá",
           date: new Date(user.date).toLocaleDateString(),
@@ -97,6 +99,7 @@ const ManageUsers = () => {
     LoadListUser();
   }, []);
 
+  
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);

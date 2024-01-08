@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Table, Button, Modal, Tooltip, message} from "antd";
 import { PlayCircleFilled, DeleteOutlined, DeleteFilled } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
@@ -16,7 +16,10 @@ const PlaylistPage = () => {
   const [voiceTitle, setVoiceTitle] = useState("");
   const [isOwner, setIsOwner] = useState(false);
 
+  
+
   const {userId} = useParams();
+  const audioRef = useRef(null); 
 
   useEffect(() => {
     const fetchPlaylistData = async () => {
@@ -39,7 +42,6 @@ const PlaylistPage = () => {
                 audioUrl: storyData.generatedVoice ? `${API_URL}/${storyData.generatedVoice}` : "", // 
               };
             } else {
-              // Xử lý cho giọng đọc cụ thể
               const storyResponse = await axios.get(`${API_URL}/api/get-stories/${item.storyId}`);
               const storyData = storyResponse.data;
               const voice = storyData.userVoices.find(v => v.voiceId === item.voiceId);
@@ -60,8 +62,7 @@ const PlaylistPage = () => {
         console.error("Error fetching playlist data:", error);
       }
     };
-    
-  
+     
     fetchPlaylistData();
   }, [userId]);
   
@@ -188,16 +189,36 @@ const PlaylistPage = () => {
     },
   ];
 
+  useEffect(() => {
+    if (isModalVisible && audioRef.current) {
+      audioRef.current.play().catch(error => {
+        console.error("Error playing audio:", error);
+      });
+    }
+  }, [isModalVisible, currentAudioUrl]);
+  
+
   const playAudio = useCallback((audioUrl) => {
     console.log(`Trying to play audio from URL: ${audioUrl}`);
     setCurrentAudioUrl(audioUrl);
     setIsModalVisible(true);
   }, []);
 
+  // const handleModalClose = () => {
+  //   if (currentAudioUrl.current) {
+  //     currentAudioUrl.current.pause();
+  //     currentAudioUrl.current.currentTime = 0; 
+  //   }
+  //   if (audioRef.current) {
+  //     audioRef.current.pause(); 
+  // }
+  //   setIsModalVisible(false);
+  // };
+
   const handleModalClose = () => {
-    if (currentAudioUrl.current) {
-      currentAudioUrl.current.pause();
-      currentAudioUrl.current.currentTime = 0; 
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
     }
     setIsModalVisible(false);
   };
@@ -216,7 +237,7 @@ const PlaylistPage = () => {
         footer= ""
       >
         <div style={{textAlign:'center'}}>
-        <audio controls autoPlay>
+        <audio controls autoPlay ref={audioRef}>
           <source src={currentAudioUrl} type="audio/mpeg" />
           Your browser does not support the audio element.
         </audio>

@@ -75,10 +75,30 @@ const StoriesPage = () => {
 
   const userIsAdmin = () =>{
     const userRole = localStorage.getItem('role');
+    return userRole =='admin' // boolean 
   }
 
   const handlePlayStory = (storyId) => {
     // Navigate to the play story page with the story ID
+    const userId = localStorage.getItem("id");
+    if (!userId) {
+      Swal.fire({
+        title: "Yêu cầu đăng nhập",
+        text: "Hãy đăng nhập để nghe truyện",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Đăng nhập",
+        cancelButtonText: "Huỷ",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/login");
+        }
+  
+      });
+      return;
+    }
     navigate(`/play/${storyId}`);
   };
 
@@ -102,7 +122,6 @@ const StoriesPage = () => {
           cancelButtonText: "Huỷ",
         }).then((result) => {
           if (result.isConfirmed) {
-            
             navigate("/login");
           }
     
@@ -142,6 +161,9 @@ const StoriesPage = () => {
     const genre = genres.find((genre) => genre._id === genreId);
     return genre ? genre.name : "";
   };
+
+
+
 
   const filteredStories = stories
     .filter((story) => story.isActive)
@@ -190,7 +212,7 @@ const StoriesPage = () => {
                 onAddToWishlist={handleAddToWishlist}
                 onPlay={() => handlePlayStory(story._id)}
                 isInWishlist={isStoryInWishlist(story._id)} // Add this prop
-                isAdmin={userIsAdmin}
+                isAdmin={userIsAdmin()}
               />
             </div>
           ))}

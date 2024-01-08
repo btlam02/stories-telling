@@ -39,9 +39,7 @@ export const deactivateUser = async (userId) => {
     }
   };
 
-
-
-
+  
   export const createUser = async (userData, token) => {
     try {
       const response = await axios.post(`${API_URL}/api/create-user`, userData, {

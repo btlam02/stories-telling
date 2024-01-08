@@ -33,16 +33,7 @@ const Navbar = () => {
     fetchData();
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-    Swal.fire({
-      title: "Sign Out Successfully!",
-      text: "See you soon!",
-      icon: "success",
-      confirmButtonText: "Done",
-    });
-  };
+
   return (
     <>
       <nav className="navbar">

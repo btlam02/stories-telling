@@ -35,7 +35,7 @@ function PlayStories() {
           <div className="story-details">
             <img className="story-cover" src={`${API_URL}/${story.imageUrl}`} alt={story.title} />
             <h1 className="story-title">{story.title}</h1>
-            <span classname="story-description">{story.description}</span>
+            <p className="story-description">{story.description}</p>
             <h2 className="story-author">{story.author}</h2>
             <p className="story-year">{story.year}</p>
             <div className="audio-player-container">
@@ -45,7 +45,6 @@ function PlayStories() {
             </audio>
           </div>
           </div>
-          
         </>
       )}
       <h1></h1>

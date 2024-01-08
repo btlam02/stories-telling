@@ -19,7 +19,7 @@ import {
   SearchOutlined,
   DeleteFilled,
   SlidersFilled,
-  SlidersOutlined
+  SlidersOutlined,
 } from "@ant-design/icons";
 const { Option } = Select;
 
@@ -27,11 +27,10 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 message.config({
   top: 100,
-  style: { marginLeft: '500px' },
+  style: { marginLeft: "500px" },
   maxCount: 1,
-  duration:0.5,
-})
-
+  duration: 0.5,
+});
 
 const WishlistPage = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -48,7 +47,6 @@ const WishlistPage = () => {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
 
   const handleVoiceChange = (selectedVoice, storyId) => {
-    
     setVoiceSelections((prevSelections) => ({
       ...prevSelections,
       [storyId]: selectedVoice,
@@ -161,7 +159,9 @@ const WishlistPage = () => {
           })
           .catch((error) => {
             console.error("Error removing from wishlist:", error);
-            message.error("Câu chuyện xóa không thành công khỏi Danh sách yêu thích");
+            message.error(
+              "Câu chuyện xóa không thành công khỏi Danh sách yêu thích"
+            );
           });
       },
     });
@@ -243,7 +243,7 @@ const WishlistPage = () => {
 
       const audioPath = await generateAudio(selectedVoiceId, storyDescription);
       setLoadingProgress(60);
-      console.log(loadingProgress); 
+      console.log(loadingProgress);
 
       const audioUrl = await retrieveAudio(audioPath);
       setLoadingProgress(90);
@@ -336,10 +336,7 @@ const WishlistPage = () => {
         return story;
       })
     );
-
   };
-
-
 
   const addToPlaylist = async (storyId, voiceSelection) => {
     try {
@@ -419,23 +416,22 @@ const WishlistPage = () => {
       key: "voice",
       render: (text, record) => (
         <Select
-      style={{ width: 120 }}
-      onChange={(value) => handleVoiceChange(value, record._id)}
-      value={
-        (record.isGenerated && !voiceSelections[record._id]) 
-          ? "default" 
-          : voiceSelections[record._id] || " "
-      }
-    >
-    
-      {record.isGenerated && <Option value="default">Default</Option>}
+          style={{ width: 120 }}
+          onChange={(value) => handleVoiceChange(value, record._id)}
+          value={
+            record.isGenerated && !voiceSelections[record._id]
+              ? "Không tồn tại"
+              : voiceSelections[record._id] || " "
+          }
+        >
+          {record.isGenerated ? <Option value="default">Default</Option> : null}
 
-      {voices.map((voice) => (
-        <Option key={voice._id} value={voice.voiceId || voice._id}>
-          {voice.title}
-        </Option>
-      ))}
-    </Select>
+          {voices.map((voice) => (
+            <Option key={voice._id} value={voice.voiceId || voice._id}>
+              {voice.title}
+            </Option>
+          ))}
+        </Select>
       ),
     },
     {
@@ -443,12 +439,18 @@ const WishlistPage = () => {
       key: "progress",
       render: (text, record) => {
         // Giả sử bạn lưu trữ trạng thái trong `userVoices`
-        const voiceStatus = record.userVoices.find(voice => voice.voiceId === voiceSelections[record._id])?.status;
+        const voiceStatus = record.userVoices.find(
+          (voice) => voice.voiceId === voiceSelections[record._id]
+        )?.status;
         const selectedVoiceId = voiceSelections[record._id];
         const isDefaultVoiceSelected = selectedVoiceId === "default";
-        if (voiceStatus === "completed" ||isDefaultVoiceSelected ) {
+        if (voiceStatus === "completed" || isDefaultVoiceSelected) {
           return "Hoàn thành";
-        } else if (selectedStoryId === record._id && loadingProgress > 0 && loadingProgress < 100) {
+        } else if (
+          selectedStoryId === record._id &&
+          loadingProgress > 0 &&
+          loadingProgress < 100
+        ) {
           return "Đang xử lý";
         } else {
           return "Chưa xử lý";
@@ -461,11 +463,14 @@ const WishlistPage = () => {
       render: (text, record) => {
         const selectedVoiceId = voiceSelections[record._id];
         const isDefaultVoiceSelected = selectedVoiceId === "default";
-        const voiceGenerated = isDefaultVoiceSelected || record.userVoices.some(
-          (voice) => voice.voiceId === selectedVoiceId && voice.status === "completed"
-        );
+        const voiceGenerated =
+          isDefaultVoiceSelected ||
+          record.userVoices.some(
+            (voice) =>
+              voice.voiceId === selectedVoiceId && voice.status === "completed"
+          );
         const isGenerating = loading && selectedStoryId === record._id;
-    
+
         return (
           <>
             {!selectedVoiceId && (
@@ -480,7 +485,7 @@ const WishlistPage = () => {
                   loading={isGenerating}
                   onClick={() => generateStory(record._id, record.description)}
                   disabled={isGenerating}
-                  style={{ color:'#ffffff', background:'#029FAE' }}
+                  style={{ color: "#ffffff", background: "#029FAE" }}
                 />
               </Tooltip>
             )}
@@ -498,19 +503,23 @@ const WishlistPage = () => {
                 icon={<DeleteFilled />}
                 onClick={() => removeFromWishlist(record._id)}
                 disabled={isGenerating}
-                style={{ marginLeft: 8, color:'#ffffff', background:'#ff0000'}}
+                style={{
+                  marginLeft: 8,
+                  color: "#ffffff",
+                  background: "#ff0000",
+                }}
               />
             </Tooltip>
           </>
         );
       },
-    }
+    },
   ];
 
   return (
     <div style={{ textAlign: "left" }}>
       <div style={{ margin: "50px 100px 0px 105px" }}>
-        <h2 style={{color: '#029FAE'}}> Yêu thích</h2>
+        <h2 style={{ color: "#029FAE" }}> Yêu thích</h2>
         <Table
           columns={wishlistColumns}
           dataSource={filteredWishlist}
@@ -520,6 +529,5 @@ const WishlistPage = () => {
     </div>
   );
 };
-
 
 export default WishlistPage;

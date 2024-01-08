@@ -189,9 +189,9 @@ const ManageStories = () => {
       cancelText: "Huỷ",
     });
 
-
-
   };
+
+
   const handleAddOrUpdateStory = async () => {
     try {
       const values = await form.validateFields();
@@ -383,12 +383,13 @@ const ManageStories = () => {
             <Input />
           </Form.Item>
           <Form.Item name="description" label="Nội dung">
-            <Input />
+            <Input.TextArea autoSize={{ minRows: 5, maxRows: 8 }} />
           </Form.Item>
           <Form.Item name="author" label="Tác giả" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           <Form.Item name="genre" label="Thể loại" rules={[{ required: true }]}>
+           
             <Select placeholder="Chọn thể loại">
               {genres.map((genre) => (
                 <Select.Option key={genre._id} value={genre._id}>
