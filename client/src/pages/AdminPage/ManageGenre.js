@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import GenreForm from "../../components/Form/GenreForm";
-import { Button, Table, Modal } from "antd";
+import { Button, Table, Modal, message} from "antd";
 import "./css/ManageGenre.css"
 import { EditOutlined, DeleteOutlined, DeleteFilled } from "@ant-design/icons";
 import {PlusSquareOutlined} from '@ant-design/icons'
@@ -35,12 +35,23 @@ const ManageGenres = () => {
   };
 
   const handleDelete = async (genreId) => {
-    try {
-      await axios.delete(`${API_URL}/api/delete-genre/${genreId}`);
-      setGenres(genres.filter((genre) => genre._id !== genreId)); // Make sure you use the correct ID field
-    } catch (error) {
-      console.error('Error deleting genre:', error);
-    }
+    Modal.confirm({
+      title: 'Xác nhận',
+      content: 'Bạn có chắc chắn muốn xóa thể loại này không?',
+      okText: 'Có',
+      cancelText: 'Không',
+      onOk: async () => {
+        try {
+          await axios.delete(`${API_URL}/api/delete-genre/${genreId}`);
+          setGenres(genres.filter((genre) => genre._id !== genreId)); 
+          message.success("Thể loại được xoá thành công")// Make sure you use the correct ID field
+        } catch (error) {
+          console.error('Error deleting genre:', error);
+          message.error("Thể loại được xoá không thành công!")
+        }
+    
+      },
+    });
   };
 
   const handleAdd = () => {

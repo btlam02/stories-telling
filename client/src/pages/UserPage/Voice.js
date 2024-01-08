@@ -47,6 +47,14 @@ const sentences = [
 ];
 
 
+const SentenceContainer = styled.div`
+  background-color: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+`;
+
 
 const AudioRecorder = () => {
   const { user } = useContext(UserContext);
@@ -67,6 +75,7 @@ const AudioRecorder = () => {
   const canvasCtxRef = useRef(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [progress, setProgress] = useState(0);
+  const [savingRecordings, setSavingRecordings] = useState(false);
   const navigate = useNavigate(); 
 
   useEffect(() => {
@@ -324,6 +333,7 @@ const AudioRecorder = () => {
     });
 
     try {
+      setSavingRecordings(true);
       // Wait for all blobs to be appended to formData
       await Promise.all(blobPromises);
       const blobs = await Promise.all(blobPromises2);
@@ -340,28 +350,30 @@ const AudioRecorder = () => {
       const voiceProcessingResult = await validateAndTrainVoice(voiceFile);
       if (voiceProcessingResult) {
         console.log("Voice processing successful");
+        setSavingRecordings(false); 
       } else {
         console.error("Voice processing failed");
       }
       message.success('Recordings saved successfully!');
       Swal.fire({
-        title: 'Success!',
-        text: 'Your recordings have been saved and processed successfully.',
+        title: 'Thành công!',
+        text: 'Giọng đọc đã được ghi âm và xử lý thành công!',
         icon: 'success',
         showCancelButton: true,
-        confirmButtonText: 'Record more',
-        cancelButtonText: 'Go to Manage Voice',
+        confirmButtonText: 'Thu âm thêm',
+        cancelButtonText: 'Quản lý',
       }).then((result) => {
         if (result.isConfirmed) {
           // User chose to record more, you can reset the state to start a new recording
           window.location.reload();
         } else {
           // User chose to go to manage voice, navigate to that page
-          navigate('/user/dashboard?key=3');
+          navigate('/user/dashboard');
         }
       });
     } catch (error) {
       console.error("Error uploading recordings: ", error);
+      setSavingRecordings(false);
     } 
   };
 
@@ -382,12 +394,22 @@ const AudioRecorder = () => {
         <h4>
           Hãy đọc rõ ràng câu cần ghi âm
         </h4>
+
+        <Waveform ref={canvasRef} />
+
+        {savingRecordings && (
         <Space direction="vertical" style={{ width: '100%' }}>
           <Progress percent={progress} status="active" />
           <p>{statusMessage}</p>
         </Space>
-        <h2>{sentences[currentSentenceIndex]}</h2>
-        <Waveform ref={canvasRef} />
+      )}
+        {/* <Space direction="vertical" style={{ width: '100%' }}>
+          <Progress percent={progress} status="active" />
+          <p>{statusMessage}</p>
+        </Space> */}
+
+        <SentenceContainer> <h2> {sentences[currentSentenceIndex]}</h2></SentenceContainer>
+        
         <Controls>
           <Button
             icon={<LeftOutlined />}

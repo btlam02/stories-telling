@@ -203,8 +203,8 @@ const PlaylistPage = () => {
   };
 
   return (
-    <div style={{ margin: "0px 100px" }}>
-      <h2 style={{ textAlign: "Left" }}> Danh sách phát</h2>
+    <div style={{ margin: "50px 100px 0px 105px" }}>
+      <h2 style={{ textAlign: "Left" ,color: '#029FAE'}}> Danh sách phát</h2>
       <Table dataSource={playlistData} columns={columns} />
 
       <Modal

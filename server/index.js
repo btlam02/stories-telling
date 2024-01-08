@@ -51,8 +51,8 @@ app.use('/api',express.static("public"),Stories);
 app.use('/api',express.static("public"),Wishlist);
 app.use('/api',express.static("public"),Playlist);
 
-app.listen(8001, () => {
-  console.log(`Server is running on port 8001`);
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
 
 
