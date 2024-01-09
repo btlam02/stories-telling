@@ -317,12 +317,12 @@ const ManageStories = () => {
       <>
         <Button
           onClick={() => editStory(record._id)}
-          style={{ marginRight: 8, color: "#FFFFFF", background: "#F19E3D" }}
+          style={{ marginLeft: 8, color: "#FFFFFF", background: "#F19E3D" }}
         >
           <EditOutlined />
         </Button>
         <Button
-          style={{ color: "#ffFFFF", background: "#ff0000" }}
+          style={{ marginLeft: 8,color: "#ffFFFF", background: "#ff0000" }}
           onClick={() => removeStory(record._id)}
         >
           <DeleteFilled />

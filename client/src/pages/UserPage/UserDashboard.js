@@ -14,6 +14,8 @@ import AudioRecorder from "./Voice";
 import AudioList from "./ManageVoice";
 import UserInfomation from "./UserInfomation";
 
+import './css/UserDashboard.css'
+
 const { Header, Sider, Content, Button } = Layout;
 
 const UserPage = () => {
@@ -68,6 +70,8 @@ const UserPage = () => {
   };
 
   return (
+
+    <div classname = "userdashboard-container"> 
     <Layout>
       <Sider
         collapsedWidth="400px"
@@ -121,6 +125,7 @@ const UserPage = () => {
         </Content>
       </Layout>
     </Layout>
+    </div>
   );
 };
 

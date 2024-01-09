@@ -54,33 +54,84 @@
     border-radius: 5px;
   }
 
-  @media screen and (max-width: 600px) {
+  @media screen and (max-width: 1200px) {
     .navbar {
-      padding: 0.6rem; /* Giảm padding của navbar */
+      padding: 0.5rem; /* Giảm padding của navbar */
     }
 
-    .navbar-link {
-      display: block; 
-      font-size: 0.9rem; /* Giảm kích thước font cho các liên kết */
-      padding: 0.1rem; /* Thêm padding để tăng kích thước bấm cho màn hình cảm ứng */
+    .navbar-link { 
       margin-top: 0.2;
-      margin-left: 0.1rem ; /* Giảm khoảng cách giữa các liên kết */
+    
+      font-size: 0.4rem; /* Giảm kích thước font của nút */
+      padding: 0.1rem 0.1rem;
     }
   
     .logo {
-      font-size: 0.7rem;
-      display:block 
+      font-size: 0.5rem;
+     
     }
   
     .menu a, .auth a {
-      margin-left: 0.5rem;
-      margin-right: 0.5rem; /* Giảm khoảng cách giữa các liên kết */
-      font-size: 0.7rem; /* Giảm kích thước font của liên kết */
+      margin-left: 0.1rem;
+      margin-right: 0.1rem; /* Giảm khoảng cách giữa các liên kết */
+      font-size: 0.5rem; /* Giảm kích thước font của liên kết */
+      padding:0.1rem 0.1rem; 
+    }
+    
+    .auth .login-btn, .auth .register-btn {
+       /* Giảm padding của nút */
+      font-size: 0.3rem; /* Giảm kích thước font của nút */
+      padding: 0.5rem 0.5rem;
+      margin-bottom: 4rem;
+    }
+
+     .auth .wishlist-btn {
+      padding: 0.2rem rem; /* Giảm padding của nút */
+      font-size: 0.5rem; /* Giảm kích thước font của nút */
+      padding: 0.4rem 0.4rem;
+    }
+
+
+  }
+
+
+  @media screen and (max-height: 450px) {
+    .navbar {
+      padding: 0.5rem; /* Giảm padding của navbar */
+    }
+
+    .navbar-link { 
+      margin-top: 0.2;
+    
+      font-size: 0.4rem; /* Giảm kích thước font của nút */
+      padding: 0.1rem 0.1rem;
     }
   
-    .auth .login-btn, .auth .wishlist-btn, .auth .register-btn {
-      padding: 0.2rem 1rem; /* Giảm padding của nút */
-      font-size: 0.8rem; /* Giảm kích thước font của nút */
+    .logo {
+      font-size: 0.5rem;
+     
     }
+  
+    .menu a, .auth a {
+      margin-left: 0.1rem;
+      margin-right: 0.1rem; /* Giảm khoảng cách giữa các liên kết */
+      font-size: 0.5rem; /* Giảm kích thước font của liên kết */
+      padding:0.1rem 0.1rem; 
+    }
+    
+    .auth .login-btn, .auth .register-btn {
+       /* Giảm padding của nút */
+      font-size: 0.3rem; /* Giảm kích thước font của nút */
+      padding: 0.5rem 0.5rem;
+      margin-bottom: 4rem;
+    }
+
+     .auth .wishlist-btn {
+      padding: 0.2rem rem; /* Giảm padding của nút */
+      font-size: 0.5rem; /* Giảm kích thước font của nút */
+      padding: 0.4rem 0.4rem;
+    }
+
+
   }
   

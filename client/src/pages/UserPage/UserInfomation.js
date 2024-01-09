@@ -77,26 +77,37 @@ const UserInformation = () => {
             <Button
               type="primary"
               onClick={() => setEditMode(true)}
-              style={{ marginBottom: "20px", marginLeft:"20px", marginTop: "34px", height:'48px' }}
-            ><EditOutlined /></Button>
+              style={{
+                marginBottom: "20px",
+                marginLeft: "20px",
+                marginTop: "34px",
+                height: "48px",
+              }}
+            >
+              <EditOutlined />
+            </Button>
           )}
         </Row>
 
-        <div style={{ textAlign: "right" }}>
+        <div style={{ display: "flex", justifyContent: "center" }}>
           {editMode && (
             <>
               <Button
                 type="primary"
                 htmlType="submit"
-                style={{ marginRight: "20px", height: "40px" }}
+                style={{
+                  marginLeft: "180px",
+                  height: "40px",
+                  marginTop: "20px",
+                }}
               >
                 Cập nhật
               </Button>
               <Button
                 style={{
-                  marginRight: "400px",
+                  marginLeft: "20px", 
                   height: "40px",
-                  marginTop: "100px",
+                  marginTop: "20px",
                 }}
                 onClick={() => setEditMode(false)}
               >

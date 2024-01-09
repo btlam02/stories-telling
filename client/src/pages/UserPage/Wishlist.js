@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "./css/Wishlist.css"
+
 import {
   Table,
   Button,
@@ -31,6 +33,8 @@ message.config({
   maxCount: 1,
   duration: 0.5,
 });
+
+
 
 const WishlistPage = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -485,7 +489,7 @@ const WishlistPage = () => {
                   loading={isGenerating}
                   onClick={() => generateStory(record._id, record.description)}
                   disabled={isGenerating}
-                  style={{ color: "#ffffff", background: "#029FAE" }}
+                  style={{ marginRight: "10px",color: "#ffffff", background: "#029FAE" }}
                 />
               </Tooltip>
             )}
@@ -504,7 +508,6 @@ const WishlistPage = () => {
                 onClick={() => removeFromWishlist(record._id)}
                 disabled={isGenerating}
                 style={{
-                  marginLeft: 8,
                   color: "#ffffff",
                   background: "#ff0000",
                 }}
@@ -517,16 +520,17 @@ const WishlistPage = () => {
   ];
 
   return (
-    <div style={{ textAlign: "left" }}>
-      <div style={{ margin: "50px 100px 0px 105px" }}>
-        <h2 style={{ color: "#029FAE" }}> Yêu thích</h2>
-        <Table
-          columns={wishlistColumns}
-          dataSource={filteredWishlist}
-          rowKey="_id"
-        />
-      </div>
+    <div className="wishlist-container">
+    <div className="wishlist-content" style={{ margin: "50px 100px 0px 105px" }}>
+      <h2 className="wishlist-title" style={{ color: "#029FAE" }}>Yêu thích</h2>
+      <Table
+        className="wishlist-table"
+        columns={wishlistColumns}
+        dataSource={filteredWishlist}
+        rowKey="_id"
+      />
     </div>
+  </div>
   );
 };
 

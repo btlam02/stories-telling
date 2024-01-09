@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
 
-
-
 // Giọng đọc 
 const voiceSchema = new mongoose.Schema({
   narrator: String, 
