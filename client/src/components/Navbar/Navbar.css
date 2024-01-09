@@ -10,7 +10,6 @@
   
   .navbar-link{
     color: rgb(158, 158, 164); 
-   
   }
 
   .navbar .active 
@@ -55,5 +54,33 @@
     border-radius: 5px;
   }
 
- 
+  @media screen and (max-width: 600px) {
+    .navbar {
+      padding: 0.6rem; /* Giảm padding của navbar */
+    }
+
+    .navbar-link {
+      display: block; 
+      font-size: 0.9rem; /* Giảm kích thước font cho các liên kết */
+      padding: 0.1rem; /* Thêm padding để tăng kích thước bấm cho màn hình cảm ứng */
+      margin-top: 0.2;
+      margin-left: 0.1rem ; /* Giảm khoảng cách giữa các liên kết */
+    }
+  
+    .logo {
+      font-size: 0.7rem;
+      display:block 
+    }
+  
+    .menu a, .auth a {
+      margin-left: 0.5rem;
+      margin-right: 0.5rem; /* Giảm khoảng cách giữa các liên kết */
+      font-size: 0.7rem; /* Giảm kích thước font của liên kết */
+    }
+  
+    .auth .login-btn, .auth .wishlist-btn, .auth .register-btn {
+      padding: 0.2rem 1rem; /* Giảm padding của nút */
+      font-size: 0.8rem; /* Giảm kích thước font của nút */
+    }
+  }
   

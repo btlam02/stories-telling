@@ -42,10 +42,10 @@ const AudioList = () => {
 
   const deleteAudio = async (audioId) => {
     Modal.confirm({
-      title: "Are you sure you want to delete this audio?",
-      content: "This action cannot be undone",
-      okText: "Yes, delete it",
-      cancelText: "No, keep it",
+      title: "Bạn có chắc là muốn xoá giọng đọc này không?",
+      content: "Việt này sẽ ảnh hưởng đến những câu chuyện khác",
+      okText: "Xác nhận",
+      cancelText: "Huỷ",
       onOk: async () => {
         try {
           await axios.delete(`${API_URL}/api/audio/${audioId}`);

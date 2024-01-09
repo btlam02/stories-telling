@@ -19,6 +19,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { user, logout } = useContext(UserContext);
   const userId = localStorage.getItem("id");
+  const name = localStorage.getItem("name"); 
   const [userInfo, setUserInfo] = useState([]);
 
   useEffect(() => {
@@ -31,7 +32,7 @@ const Navbar = () => {
       }
     };
     fetchData();
-  }, []);
+  });
 
 
   return (
@@ -41,14 +42,14 @@ const Navbar = () => {
         <div className="menu">
           {user && user.auth === true ? (
             <>
-              <NavLink to="/" activeClassName="active" className="nav-link">
+              <NavLink to="/" activeClassName="active" className="navbar-link">
                 Trang chủ
               </NavLink>
 
               <NavLink
                 to="/story"
                 activeClassName="active"
-                className="nav-link"
+                className="navbar-link"
               >
                 Kho truyện
               </NavLink>
@@ -56,7 +57,7 @@ const Navbar = () => {
                 <NavLink
                   to={`/user/playlist/${userId}`}
                   activeClassName="active"
-                  className="nav-link"
+                  className="navbar-link"
                 >
                   Danh sách phát
                 </NavLink>
@@ -81,7 +82,7 @@ const Navbar = () => {
         <div className="auth">
           {user && user.auth === true ? (
             <>
-              <span>{userInfo.name}</span>
+              <spanm className ="navbar-link">{userInfo.name}</spanm>
               {user.role === "admin" && (
                 <>
                   <NavLink

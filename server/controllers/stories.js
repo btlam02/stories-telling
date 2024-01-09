@@ -2,22 +2,44 @@
 const Story = require("../models/stories");
 
 
-const addStory = async (req, res) => {
-  try {
-    const storyData = {
-      ...req.body,
-      imageUrl: req.file ? req.file.path : undefined, 
-      generatedVoice: req.body.generatedVoice,
+// const addStory = async (req, res) => {
+//   try {
+//     const storyData = {
+//       ...req.body,
+//       imageUrl: req.file ? req.file.path : undefined, 
+//       generatedVoice: req.body.generatedVoice,
 
       
-    };
-    let story = new Story(storyData);
-    story = await story.save();
-    res.status(201).send(story);
+//     };
+//     let story = new Story(storyData);
+//     story = await story.save();
+//     res.status(201).send(story);
+//   } catch (error) {
+//     res.status(400).send(error.message);
+//   }
+// };
+
+const addStory = async (req, res) => {
+  try {
+    const { title, author, description, genre } = req.body;
+    const imageUrl = req.file ? req.file.path : ''; // Lấy đường dẫn của file nếu có
+
+    const newStory = new Story({
+      title,
+      author,
+      description,
+      genre,
+      imageUrl, 
+    });
+
+    await newStory.save();
+
+    res.status(201).send(newStory);
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(500).send({ message: 'Error adding new story', error: error.message });
   }
 };
+
 
 
 const getAllStories = async (req, res) => {
@@ -55,7 +77,7 @@ const updateStory = async (req, res) => {
     if (!story) return res.status(404).send("Story not found");
     res.send(story);
   } catch (error) {
-    
+
     res.status(500).send(error.message);
   }
 };
