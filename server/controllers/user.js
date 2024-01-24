@@ -1,4 +1,5 @@
 const User = require("../models/users");
+const crypto = require("crypto");
 
 const userController = {
   createUser: async (req, res) => {
@@ -41,6 +42,7 @@ const userController = {
         .json({ message: "Error deactivating user", error: error.message });
     }
   },
+
 
   GetUserById: async (req, res) => {
     try {

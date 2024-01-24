@@ -14,7 +14,7 @@ const Voice = require('./routes/voice');
 const Genre = require('./routes/genre');
 const Stories = require('./routes/stories');
 const Wishlist = require('./routes/wishlist');
-const Playlist = require('./routes/playlist');
+const Playlist = require('./routes/playlist'); 
 
 const app = express();
 
@@ -50,6 +50,7 @@ app.use('/api',express.static("public"),Genre);
 app.use('/api',express.static("public"),Stories);
 app.use('/api',express.static("public"),Wishlist);
 app.use('/api',express.static("public"),Playlist);
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

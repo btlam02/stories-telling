@@ -2,44 +2,25 @@
 const Story = require("../models/stories");
 
 
-// const addStory = async (req, res) => {
-//   try {
-//     const storyData = {
-//       ...req.body,
-//       imageUrl: req.file ? req.file.path : undefined, 
-//       generatedVoice: req.body.generatedVoice,
-
-      
-//     };
-//     let story = new Story(storyData);
-//     story = await story.save();
-//     res.status(201).send(story);
-//   } catch (error) {
-//     res.status(400).send(error.message);
-//   }
-// };
-
 const addStory = async (req, res) => {
   try {
     const { title, author, description, genre } = req.body;
-    const imageUrl = req.file ? req.file.path : ''; // Lấy đường dẫn của file nếu có
-
+    const imageUrl = req.file ? req.file.path : ''; 
     const newStory = new Story({
       title,
       author,
       description,
       genre,
-      imageUrl, 
+      imageUrl,
     });
 
     await newStory.save();
 
     res.status(201).send(newStory);
   } catch (error) {
-    res.status(500).send({ message: 'Error adding new story', error: error.message });
+    res.status(500).send({ message: 'Lỗi khi thêm câu chuyện mới', error: error.message });
   }
 };
-
 
 
 const getAllStories = async (req, res) => {
